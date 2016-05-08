@@ -20,6 +20,7 @@
 // Error Messages
 #define ERROR_INVALID_COMMAND "%s is not a valid command"
 #define ERROR_MACHINE_NOTFOUND "Could not find VM %s"
+#define ERROR_NEEDS_MACHINE "You need to specify a machine name"
 
 // Valid Commands
 #define LIST 0
@@ -36,12 +37,34 @@ char *commands[] = {
 
 // Function Declarations
 int get_command(const char *command);
-void list_machines();
 void usage(const char *program_exec);
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, const char *machine_name);
 void run_command(const int command_id, const char *machine_name);
 
+// Tasks
+void list_machines() {
+  fprintf(stdout, "Here be a list of machines:\n");
+  fprintf(stdout, " - default\n");
+  fprintf(stdout, " - different\n");
+}
+
+void create_machine(const char *machine_name) {
+  if (!machine_name) {
+    fprintf(stderr, ERROR_NEEDS_MACHINE);
+    fprintf(stderr, "\n");
+  } else {
+    fprintf(stdout, "This will create the machine %s\n", machine_name);
+  }
+}
+
+void delete_machine(const char *machine_name) {
+}
+
+void start_machine(const char *machine_name) {
+}
+
+// Main
 int main(int argc, char **argv) {
   if (argv[COMMAND]) {
     parse_command(argv[COMMAND], argv[MACHINE_NAME]);
@@ -88,23 +111,20 @@ void run_command(const int command_id, const char *machine_name) {
     }
     break;
   case START:
+    start_machine(machine_name);
     break;
   case CREATE:
+    create_machine(machine_name);
     break;
   case DELETE:
+    delete_machine(machine_name);
     break;
   }
 }
 
-void list_machines() {
-  fprintf(stdout, "Here be a list of machines:\n");
-  fprintf(stdout, " - default\n");
-  fprintf(stdout, " - different\n");
-}
-
 void invalid_command(const char *command, const char *error_message) {
   fprintf(stderr, error_message, command);
-  fprintf(stdout, "\n");
+  fprintf(stderr, "\n");
 }
 
 void usage(const char *program_exec) {
