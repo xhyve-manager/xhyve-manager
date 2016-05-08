@@ -1,9 +1,9 @@
 * xhyve-manager
 ** Features 
-*** memory
-*** cpus
-*** networking
-*** storage
++ memory
++ cpus
++ networking
++ storage
 ** Challenges
 *** Linux guests 
 **** have to extract kernel and initrd from installation ISO *before* booting into the live environment
