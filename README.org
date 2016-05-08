@@ -1,0 +1,29 @@
+* xhyve-manager
+** Features 
+*** memory
+*** cpus
+*** networking
+*** storage
+** Challenges
+*** Linux guests 
+**** have to extract kernel and initrd from installation ISO *before* booting into the live environment
+**** have to extract kernel and initrd from new installation *before* rebooting
+*** Storage
+**** need to create virtual disk with ~dd~
+*** Graphical Session 
+**** need to connect with a VNC viewer
+** Roadmap
+*** TODO Add placeholders for commandline options with ~getopt~
+**** TODO ~-l~ list virtual machines
+**** TODO ~-c <name>~ create a new virtual machine
+**** TODO ~-d <name>~ delete virtual machine
+**** TODO ~-s <name>~ start virtual machine
+*** TODO Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
+**** TODO Create a ~config.ini~ from prompting the user for these values:
+***** TODO memory
+***** TODO cpus
+***** TODO networking
+***** TODO storage
+****** TODO CD: specify where this is on disk
+****** TODO HDD: specify where this is on disk 
+******* TODO create if it doesn't exist
