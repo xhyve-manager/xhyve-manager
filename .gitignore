@@ -1,2 +1,3 @@
 xhyvectl
 *.o
+.obj

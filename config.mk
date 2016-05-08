@@ -1,4 +1,4 @@
 CC=clang
 CCFLAGS=-I
-DEPS=ini.h
+DEPS=xhyvectl.h ini.h
 TARGET=xhyvectl

@@ -1,13 +1,25 @@
-include config.mk
+IDIR = include
+CC=clang
+CFLAGS=-I$(IDIR)
 
-%.o: %.c $(DEPS)
+ODIR=.obj
+LDIR = lib
+
+#LIBS=-l
+
+_DEPS = xhyvectl.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+
+_OBJ = xhyvectl.o ini.o
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+$(ODIR)/%.o: src/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(TARGET): $(TARGET).o ini.o
-	$(CC) -o $(TARGET) $(TARGET).o ini.o -I.
+xhyvectl: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
 clean:
-	rm $(TARGET) && rm *.o
-
+	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
