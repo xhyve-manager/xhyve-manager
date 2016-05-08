@@ -18,6 +18,7 @@
 **** TODO ~-c <name>~ create a new virtual machine
 **** TODO ~-d <name>~ delete virtual machine
 **** TODO ~-s <name>~ start virtual machine
+***** TODO at some point start it in detached mode?
 *** TODO Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
 **** TODO Create a ~config.ini~ from prompting the user for these values:
 ***** TODO memory
@@ -32,3 +33,4 @@
 ***** TODO HDD: specify where this is on disk 
 ****** TODO create if it doesn't exist
 ****** TODO or just have user specify it
+*** TODO At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.
