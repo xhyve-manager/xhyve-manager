@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 // Preprocessed
 #define PROGRAM_EXEC 0
@@ -21,6 +22,10 @@
 #define ERROR_INVALID_COMMAND "%s is not a valid command"
 #define ERROR_MACHINE_NOTFOUND "Could not find VM %s"
 #define ERROR_NEEDS_MACHINE "You need to specify a machine name"
+
+// Defaults
+#define DEFAULT_VM_DIRECTORY "/usr/local/Library/xhyve/machines/"
+#define VM_EXT ".xhyvm"
 
 // Valid Commands
 #define LIST 0
@@ -55,6 +60,14 @@ void create_machine(const char *machine_name) {
     fprintf(stderr, "\n");
   } else {
     fprintf(stdout, "This will create the machine %s\n", machine_name);
+    int dirlen = strlen(DEFAULT_VM_DIRECTORY);
+    int namelen = strlen(machine_name);
+    int extlen = strlen(VM_EXT);
+    char path[dirlen + namelen + extlen + 2];
+    strcat(path, DEFAULT_VM_DIRECTORY);
+    strcat(path, machine_name);
+    strcat(path, VM_EXT);
+    fprintf(stdout, "%s\n", path);
   }
 }
 
