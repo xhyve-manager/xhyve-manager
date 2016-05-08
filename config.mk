@@ -1,4 +1,9 @@
+IDIR = include
 CC=clang
-CCFLAGS=-I
-DEPS=xhyvectl.h ini.h
-TARGET=xhyvectl
+CFLAGS=-I$(IDIR)
+
+ODIR=.obj
+LDIR = lib
+
+#LIBS=-l
+

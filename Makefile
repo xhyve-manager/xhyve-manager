@@ -1,11 +1,4 @@
-IDIR = include
-CC=clang
-CFLAGS=-I$(IDIR)
-
-ODIR=.obj
-LDIR = lib
-
-#LIBS=-l
+include config.mk
 
 _DEPS = xhyvectl.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
