@@ -5,50 +5,35 @@
 #include <stdio.h>
 #include <string.h>
 
-// Defaults
-#define DEFAULT_MACHINE "xhyve_default"
+// Preprocessed
+#define PROGRAM_EXEC 0
+#define COMMAND 1
+#define MACHINE_NAME 2
 
-// Global
-char *program_path;
-
-void usage() {
-  fprintf(stderr, "Usage: %s -n <virtual-machine-name> <command> \n", program_path);
-  exit(EXIT_FAILURE);
-}
+// Commands
+#define LIST_COMMAND "list"
 
 void list_machines() {
   fprintf(stdout, "Here be a list of machines:\n");
   fprintf(stdout, " - default\n");
   fprintf(stdout, " - different\n");
 }
+void usage(char **argv) {
+  fprintf(stderr, "Usage: %s <virtual-machine-name> <command> \n", argv[PROGRAM_EXEC]);
+}
+
+void run_command(char *machine_name, char *command) {
+  fprintf(stdout, "%s machine %s\n", machine_name, command);
+}
 
 int main(int argc, char **argv) {
-  program_path = argv[0];
-
-  int opt;
-  char *machine_name, *command;
-  int listMachines = 0;
-
-  while ((opt = getopt(argc, argv, "ln::")) != -1) {
-    switch (opt) {
-    case 'l':
-      listMachines = 1;
-      break;
-    case 'n':
-      machine_name = optarg;
-      command = argv[optind];
-      break;
-    }
-  }
-
-  if (machine_name && command && !listMachines) {
-    fprintf(stdout, "%s machine %s\n", command, machine_name);
-  } else if (listMachines) {
-    list_machines();
+  if (argv[MACHINE_NAME] && argv[COMMAND]) {
+    run_command(argv[MACHINE_NAME], argv[COMMAND]);
   } else {
-    usage();
+    list_machines();
+    usage(argv);
+    exit(EXIT_FAILURE);
   }
-
   exit(EXIT_SUCCESS);
 }
 
