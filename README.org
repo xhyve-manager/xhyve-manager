@@ -1,31 +1,31 @@
 * xhyve-manager
 ** Features 
-- memory
-- cpus
-- networking
-- storage
++ memory
++ cpus
++ networking
++ storage
 ** Challenges
 *** Linux guests 
-- have to extract kernel and initrd from installation ISO *before* booting into the live environment
-- have to extract kernel and initrd from new installation *before* rebooting
++ have to extract kernel and initrd from installation ISO *before* booting into the live environment
++ have to extract kernel and initrd from new installation *before* rebooting
 *** Storage
-- need to create virtual disk with ~dd~
++ need to create virtual disk with ~dd~
 *** Graphical Session 
-- need to connect with a VNC viewer
++ need to connect with a VNC viewer
 ** Roadmap
 *** TODO Add placeholders for commandline options with ~getopt~
-- [ ] ~-l~ list virtual machines
-- [ ] ~-c <name>~ create a new virtual machine
-- [ ] ~-d <name>~ delete virtual machine
-- [ ] ~-s <name>~ start virtual machine
++ [ ] ~-l~ list virtual machines
++ [ ] ~-c <name>~ create a new virtual machine
++ [ ] ~-d <name>~ delete virtual machine
++ [ ] ~-s <name>~ start virtual machine
 at some point start it in detached mode?
 *** TODO Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
 **** Create a ~config.ini~ from prompting the user for these values:
-- [ ] memory
-- [ ] cpus
-- [ ] networking
-- [ ] storage
++ [ ] memory
++ [ ] cpus
++ [ ] networking
++ [ ] storage
 **** Storage
-- [ ] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
-- [ ] HDD: specify where this is on disk; create if it doesn't existor just have user specify it.
++ [ ] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
++ [ ] HDD: specify where this is on disk; create if it doesn't existor just have user specify it.
 *** TODO At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.
