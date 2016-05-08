@@ -34,13 +34,13 @@ char *commands[] = {
   NULL
 };
 
-// Functions
+// Function Declarations
 int get_command(const char *command);
 void list_machines();
 void usage(const char *program_exec);
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, const char *machine_name);
-
+void run_command(const int command_id, const char *machine_name);
 
 int main(int argc, char **argv) {
   if (argv[COMMAND]) {
@@ -55,11 +55,7 @@ int main(int argc, char **argv) {
 void parse_command(const char *command, const char *machine_name) {
   int command_id;
   if ((command_id = get_command(command)) != -1) {
-    if (command_id == LIST) list_machines();
-    else {
-      fprintf(stdout, MESSAGE_PARSE_COMMAND, command, machine_name, command_id);
-      fprintf(stdout, "\n");
-    }
+    run_command(command_id, machine_name);
   } else {
     invalid_command(command, ERROR_INVALID_COMMAND);
   }
@@ -80,6 +76,24 @@ int get_command(const char *command) {
   }
 
   return command_id;
+}
+
+void run_command(const int command_id, const char *machine_name) {
+  switch (command_id) {
+  case LIST:
+    if (!machine_name) list_machines();
+    else {
+      fprintf(stderr, "list does not take any additional parameters\n");
+      exit(EXIT_FAILURE);
+    }
+    break;
+  case START:
+    break;
+  case CREATE:
+    break;
+  case DELETE:
+    break;
+  }
 }
 
 void list_machines() {
