@@ -16,6 +16,9 @@
 #include <sys/stat.h>
 #include <pwd.h>
 
+// Local
+#include "ini.h"
+
 // Get homedir
 const char *homedir;
 
