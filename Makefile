@@ -13,7 +13,10 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _OBJ = xhyvectl.o ini.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-$(ODIR)/%.o: src/%.c $(DEPS)
+$(ODIR):
+	@mkdir -p $(ODIR)
+
+$(ODIR)/%.o: src/%.c $(DEPS) | $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 xhyvectl: $(OBJ)
