@@ -1,9 +1,9 @@
 include config.mk
 
-_DEPS = xhyvectl.h
+_DEPS = $(TARGET).h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = xhyvectl.o ini.o
+_OBJ = $(TARGET).o ini.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR):
@@ -12,7 +12,7 @@ $(ODIR):
 $(ODIR)/%.o: src/%.c $(DEPS) | $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-xhyvectl: $(OBJ)
+$(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean

@@ -7,3 +7,4 @@ LDIR = lib
 
 #LIBS=-l
 
+TARGET = xhyvectl
