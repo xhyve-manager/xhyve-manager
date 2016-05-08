@@ -24,6 +24,11 @@
 ***** TODO cpus
 ***** TODO networking
 ***** TODO storage
-****** TODO CD: specify where this is on disk
-****** TODO HDD: specify where this is on disk 
-******* TODO create if it doesn't exist
+**** TODO Storage
+***** TODO CD: specify where this is on disk
+****** TODO automatically extract the kernel and initrd
+******* Put this in ~<name>.xhyvm~.
+****** TODO or just have user specify it
+***** TODO HDD: specify where this is on disk 
+****** TODO create if it doesn't exist
+****** TODO or just have user specify it
