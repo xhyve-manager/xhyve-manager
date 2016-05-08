@@ -18,6 +18,7 @@ void list_machines() {
   fprintf(stdout, " - default\n");
   fprintf(stdout, " - different\n");
 }
+
 void usage(char **argv) {
   fprintf(stderr, "Usage: %s <virtual-machine-name> <command> \n", argv[PROGRAM_EXEC]);
 }
