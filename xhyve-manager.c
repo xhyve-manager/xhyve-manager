@@ -41,6 +41,30 @@ void usage(const char *program_exec);
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, const char *machine_name);
 
+
+int main(int argc, char **argv) {
+  if (argv[COMMAND]) {
+    parse_command(argv[COMMAND], argv[MACHINE_NAME]);
+  } else {
+    usage(argv[PROGRAM_EXEC]);
+    exit(EXIT_FAILURE);
+  }
+  exit(EXIT_SUCCESS);
+}
+
+void parse_command(const char *command, const char *machine_name) {
+  int command_id;
+  if ((command_id = get_command(command)) != -1) {
+    if (command_id == LIST) list_machines();
+    else {
+      fprintf(stdout, MESSAGE_PARSE_COMMAND, command, machine_name, command_id);
+      fprintf(stdout, "\n");
+    }
+  } else {
+    invalid_command(command, ERROR_INVALID_COMMAND);
+  }
+}
+
 int get_command(const char *command) {
   int command_id = -1, cid = 0;
   char **temp = NULL;
@@ -64,35 +88,11 @@ void list_machines() {
   fprintf(stdout, " - different\n");
 }
 
-void usage(const char *program_exec) {
-  fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
-}
-
 void invalid_command(const char *command, const char *error_message) {
   fprintf(stderr, error_message, command);
   fprintf(stdout, "\n");
 }
 
-void parse_command(const char *command, const char *machine_name) {
-  int command_id;
-  if ((command_id = get_command(command)) != -1) {
-    if (command_id == LIST) list_machines();
-    else {
-      fprintf(stdout, MESSAGE_PARSE_COMMAND, command, machine_name, command_id);
-      fprintf(stdout, "\n");
-    }
-  } else {
-    invalid_command(command, ERROR_INVALID_COMMAND);
-  }
+void usage(const char *program_exec) {
+  fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
 }
-
-int main(int argc, char **argv) {
-  if (argv[COMMAND]) {
-    parse_command(argv[COMMAND], argv[MACHINE_NAME]);
-  } else {
-    usage(argv[PROGRAM_EXEC]);
-    exit(EXIT_FAILURE);
-  }
-  exit(EXIT_SUCCESS);
-}
-
