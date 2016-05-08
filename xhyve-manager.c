@@ -28,7 +28,7 @@ const char *homedir;
 #define ERROR_NEEDS_MACHINE "You need to specify a machine name"
 
 // Defaults
-#define DEFAULT_VM_DIRECTORY "xhyve/machines"
+#define DEFAULT_VM_DIRECTORY "xhyve.d/machines"
 #define VM_EXT "xhyvm"
 
 // Valid Commands
