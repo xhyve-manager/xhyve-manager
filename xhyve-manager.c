@@ -8,23 +8,32 @@
 // Defaults
 #define DEFAULT_MACHINE "xhyve_default"
 
-int main(int argc, char **argv) {
-  int opt, worker_threads;
-  char *machine_name;
-  machine_name = DEFAULT_MACHINE;
+// Global
+char *program_path;
 
-  while ((opt = getopt(argc, argv, "n:")) != -1) {
+void usage() {
+  fprintf(stderr, "Usage: %s -n <virtual-machine-name> <command> \n", program_path);
+  exit(EXIT_FAILURE);
+}
+
+int main(int argc, char **argv) {
+  program_path = argv[0];
+
+  int opt;
+  char *machine_name, *command;
+
+  while ((opt = getopt(argc, argv, "n::")) != -1) {
     switch (opt) {
     case 'n':
       machine_name = optarg;
+      command = argv[optind];
       break;
     default:
-      fprintf(stderr, "Usage: %s [-n <virtual-machine-name>] \n", argv[0]);
-      exit(EXIT_FAILURE);
+      usage();
     }
   }
 
-  fprintf(stdout, "machine_name: %s, optind: %d\n", machine_name, optind);
+  fprintf(stdout, "%s machine %s\n", command, machine_name);
 
   exit(EXIT_SUCCESS);
 }
