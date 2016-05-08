@@ -69,7 +69,7 @@ void create_machine(const char *machine_name) {
     sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
     fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
     if (mkdir(path, 0700) == 0) {
-      fprintf(stdout, "Successfully initialized directory\n");
+      fprintf(stdout, "Successfully initialized machine at %s\n", path);
     } else {
       perror("mkdir");
     }
