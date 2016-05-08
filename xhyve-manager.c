@@ -20,16 +20,16 @@ void list_machines() {
 }
 
 void usage(char **argv) {
-  fprintf(stderr, "Usage: %s <virtual-machine-name> <command> \n", argv[PROGRAM_EXEC]);
+  fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", argv[PROGRAM_EXEC]);
 }
 
-void run_command(char *machine_name, char *command) {
-  fprintf(stdout, "%s machine %s\n", machine_name, command);
+void run_command(char *command, char *machine_name) {
+  fprintf(stdout, "%s machine %s\n", command, machine_name);
 }
 
 int main(int argc, char **argv) {
   if (argv[MACHINE_NAME] && argv[COMMAND]) {
-    run_command(argv[MACHINE_NAME], argv[COMMAND]);
+    run_command(argv[COMMAND], argv[MACHINE_NAME]);
   } else {
     list_machines();
     usage(argv);
