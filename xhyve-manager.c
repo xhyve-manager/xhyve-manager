@@ -60,10 +60,7 @@ void create_machine(const char *machine_name) {
     fprintf(stderr, "\n");
   } else {
     fprintf(stdout, "This will create the machine %s\n", machine_name);
-    int dirlen = strlen(DEFAULT_VM_DIRECTORY);
-    int namelen = strlen(machine_name);
-    int extlen = strlen(VM_EXT);
-    char path[dirlen + namelen + extlen + 2];
+    char path[BUFSIZ];
     strcat(path, DEFAULT_VM_DIRECTORY);
     strcat(path, machine_name);
     strcat(path, VM_EXT);
