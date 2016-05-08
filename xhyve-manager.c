@@ -26,7 +26,8 @@ char *commands[] = {
   "list",
   "create",
   "delete",
-  "start"
+  "start",
+  NULL
 };
 
 // Functions
@@ -37,8 +38,16 @@ void run_command(const char *command, const char *machine_name);
 
 int is_valid_command(const char *command) {
   int isValid = 0;
-  char *temp = NULL;
-  temp = *commands;
+  char **temp = NULL;
+  temp = commands;
+
+  while (*temp) {
+    if (strcmp(command,*temp) == 0) {
+      isValid = 1;
+      break;
+    }
+    temp++;
+  }
 
   return isValid;
 }
