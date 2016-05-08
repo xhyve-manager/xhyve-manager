@@ -65,6 +65,8 @@ void create_machine(const char *machine_name) {
     fprintf(stderr, "\n");
   } else {
     fprintf(stdout, "This will create the machine %s\n", machine_name);
+
+    // Create the machine_name.xhyvm directory
     char path[BUFSIZ];
     sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
     fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
@@ -73,6 +75,7 @@ void create_machine(const char *machine_name) {
     } else {
       perror("mkdir");
     }
+
   }
 }
 
