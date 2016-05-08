@@ -6,6 +6,8 @@ include config.mk
 $(TARGET): $(TARGET).o ini.o
 	$(CC) -o $(TARGET) $(TARGET).o ini.o -I.
 
+.PHONY: clean
+
 clean:
 	rm $(TARGET) && rm *.o
 
