@@ -15,13 +15,17 @@
 #define MACHINE_NAME 2
 
 // Messages
-#define MESSAGE_RUN_COMMAND "%s machine %s"
+#define MESSAGE_PARSE_COMMAND "%s machine %s with command_id %d"
 
 // Error Messages
-#define ERROR_INVALID_COMMAND "%s is not a valid command."
+#define ERROR_INVALID_COMMAND "%s is not a valid command"
 #define ERROR_MACHINE_NOTFOUND "Could not find VM %s"
 
 // Valid Commands
+#define LIST 0
+#define CREATE 1
+#define DELETE 2
+#define START 3
 char *commands[] = {
   "list",
   "create",
@@ -31,25 +35,27 @@ char *commands[] = {
 };
 
 // Functions
-int is_valid_command(const char *command);
+int get_command(const char *command);
 void list_machines();
 void usage(const char *program_exec);
-void run_command(const char *command, const char *machine_name);
+void invalid_command(const char *command, const char *error_message);
+void parse_command(const char *command, const char *machine_name);
 
-int is_valid_command(const char *command) {
-  int isValid = 0;
+int get_command(const char *command) {
+  int command_id = -1, cid = 0;
   char **temp = NULL;
   temp = commands;
 
   while (*temp) {
     if (strcmp(command,*temp) == 0) {
-      isValid = 1;
+      command_id = cid;
       break;
     }
+    cid++;
     temp++;
   }
 
-  return isValid;
+  return command_id;
 }
 
 void list_machines() {
@@ -62,21 +68,27 @@ void usage(const char *program_exec) {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
 }
 
-void run_command(const char *command, const char *machine_name) {
-  if (is_valid_command(command)) {
-    fprintf(stdout, MESSAGE_RUN_COMMAND, command, machine_name);
-    fprintf(stdout, "\n");
+void invalid_command(const char *command, const char *error_message) {
+  fprintf(stderr, error_message, command);
+  fprintf(stdout, "\n");
+}
+
+void parse_command(const char *command, const char *machine_name) {
+  int command_id;
+  if ((command_id = get_command(command)) != -1) {
+    if (command_id == LIST) list_machines();
+    else {
+      fprintf(stdout, MESSAGE_PARSE_COMMAND, command, machine_name, command_id);
+      fprintf(stdout, "\n");
+    }
   } else {
-    fprintf(stderr, ERROR_INVALID_COMMAND, command);
-    fprintf(stdout, "\n");
+    invalid_command(command, ERROR_INVALID_COMMAND);
   }
 }
 
 int main(int argc, char **argv) {
-  if (argv[MACHINE_NAME] && argv[COMMAND]) {
-    run_command(argv[COMMAND], argv[MACHINE_NAME]);
-  } else if (!argv[MACHINE_NAME] && argv[COMMAND]) {
-    list_machines();
+  if (argv[COMMAND]) {
+    parse_command(argv[COMMAND], argv[MACHINE_NAME]);
   } else {
     usage(argv[PROGRAM_EXEC]);
     exit(EXIT_FAILURE);
