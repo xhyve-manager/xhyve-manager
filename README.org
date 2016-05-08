@@ -1,9 +1,7 @@
-* xhyve-manager
-** Features 
-+ memory
-+ cpus
-+ networking
-+ storage
+* xhyvectl
+** Planned Features
++ Manage lifecycle of virtual machines (inspired by bhyvectl on FreeBSD)
++ Native, OS X GUI (inspired by virt-manager on Linux)
 ** Challenges
 *** Linux guests 
 + have to extract kernel and initrd from installation ISO *before* booting into the live environment
@@ -13,12 +11,11 @@
 *** Graphical Session 
 + need to connect with a VNC viewer
 ** Roadmap
-*** TODO Add placeholders for commandline options with ~getopt~
-+ [ ] ~-l~ list virtual machines
-+ [ ] ~-c <name>~ create a new virtual machine
-+ [ ] ~-d <name>~ delete virtual machine
-+ [ ] ~-s <name>~ start virtual machine
-at some point start it in detached mode?
+*** TODO Add placeholders for commandline options
++ [ ] ~list~ list virtual machines
++ [ ] ~create <name>~ create a new virtual machine
++ [ ] ~delete <name>~ delete virtual machine
++ [ ] ~start <name>~ start virtual machine. at some point start it in detached mode and do something like ~vagrant ssh~. Maybe ~xhyve login~.
 *** TODO Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
 **** Create a ~config.ini~ from prompting the user for these values:
 + [ ] memory
@@ -27,5 +24,5 @@ at some point start it in detached mode?
 + [ ] storage
 **** Storage
 + [ ] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
-+ [ ] HDD: specify where this is on disk; create if it doesn't existor just have user specify it.
++ [ ] HDD: specify where this is on disk; create if it doesn't exist or just have user specify it.
 *** TODO At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.
