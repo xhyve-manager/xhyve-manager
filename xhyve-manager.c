@@ -1,3 +1,7 @@
+/**
+ * xhyve-manager
+ * a simple CLI utility to manage xhyve virtual machines.
+ **/
 
 // System
 #include <unistd.h>
@@ -10,8 +14,13 @@
 #define COMMAND 1
 #define MACHINE_NAME 2
 
-// Commands
-#define LIST_COMMAND "list"
+// Valid Commands
+char *commands[] = {
+  "list",
+  "create",
+  "delete",
+  "start"
+};
 
 void list_machines() {
   fprintf(stdout, "Here be a list of machines:\n");
@@ -30,8 +39,9 @@ void run_command(char *command, char *machine_name) {
 int main(int argc, char **argv) {
   if (argv[MACHINE_NAME] && argv[COMMAND]) {
     run_command(argv[COMMAND], argv[MACHINE_NAME]);
-  } else {
+  } else if (!argv[MACHINE_NAME] && argv[COMMAND]) {
     list_machines();
+  } else {
     usage(argv);
     exit(EXIT_FAILURE);
   }
