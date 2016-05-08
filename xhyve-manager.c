@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <pwd.h>
+
+// Get homedir
+const char *homedir;
 
 // Preprocessed
 #define PROGRAM_EXEC 0
@@ -24,8 +28,8 @@
 #define ERROR_NEEDS_MACHINE "You need to specify a machine name"
 
 // Defaults
-#define DEFAULT_VM_DIRECTORY "/usr/local/Library/xhyve/machines/"
-#define VM_EXT ".xhyvm"
+#define DEFAULT_VM_DIRECTORY "xhyve/machines"
+#define VM_EXT "xhyvm"
 
 // Valid Commands
 #define LIST 0
@@ -41,6 +45,7 @@ char *commands[] = {
 };
 
 // Function Declarations
+char *get_homedir();
 int get_command(const char *command);
 void usage(const char *program_exec);
 void invalid_command(const char *command, const char *error_message);
@@ -61,9 +66,7 @@ void create_machine(const char *machine_name) {
   } else {
     fprintf(stdout, "This will create the machine %s\n", machine_name);
     char path[BUFSIZ];
-    strcat(path, DEFAULT_VM_DIRECTORY);
-    strcat(path, machine_name);
-    strcat(path, VM_EXT);
+    sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
     fprintf(stdout, "%s\n", path);
   }
 }
@@ -77,12 +80,21 @@ void start_machine(const char *machine_name) {
 // Main
 int main(int argc, char **argv) {
   if (argv[COMMAND]) {
+    homedir = get_homedir();
     parse_command(argv[COMMAND], argv[MACHINE_NAME]);
   } else {
     usage(argv[PROGRAM_EXEC]);
     exit(EXIT_FAILURE);
   }
   exit(EXIT_SUCCESS);
+}
+
+char *get_homedir() {
+  char *hdir;
+  // http://stackoverflow.com/questions/2910377/get-home-directory-in-linux-c
+  struct passwd *pw = getpwuid(getuid());
+  hdir = pw->pw_dir;
+  return hdir;
 }
 
 void parse_command(const char *command, const char *machine_name) {
