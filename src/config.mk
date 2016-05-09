@@ -1,9 +1,9 @@
-IDIR = include
+IDIR = ../include
 CC=clang
 CFLAGS=-I$(IDIR)
 
 ODIR=.obj
-LDIR = lib
+LDIR = ../lib
 
 #LIBS=-l
 

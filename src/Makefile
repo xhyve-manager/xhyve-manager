@@ -9,7 +9,7 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 $(ODIR):
 	@mkdir -p $(ODIR)
 
-$(ODIR)/%.o: src/%.c $(DEPS) | $(ODIR)
+$(ODIR)/%.o: %.c $(DEPS) | $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(TARGET): $(OBJ)
