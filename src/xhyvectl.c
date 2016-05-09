@@ -191,7 +191,7 @@ void read_config(char *config_path) {
   }
 }
 
-void machine_info(const char *machine_name) {
+void load_machine_info(const char *machine_name) {
   char path[BUFSIZ];
   get_machine_path(path, machine_name);
   char config_path[BUFSIZ];
@@ -211,6 +211,8 @@ int main(int argc, char **argv) {
   cleanup();
   exit(EXIT_SUCCESS);
 }
+
+//-------- Helper Functions -------------//
 
 char *get_homedir() {
   char *hdir;
@@ -271,7 +273,7 @@ void run_command(const int command_id, char *machine_name) {
     delete_machine(machine_name);
     break;
   case INFO:
-    machine_info(machine_name);
+    load_machine_info(machine_name);
     break;
   }
 }
