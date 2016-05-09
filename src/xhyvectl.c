@@ -60,6 +60,7 @@ void usage(const char *program_exec);
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, const char *machine_name);
 void run_command(const int command_id, const char *machine_name);
+
 // Tasks
 void list_machines() {
   fprintf(stdout, "Here be a list of machines:\n");
