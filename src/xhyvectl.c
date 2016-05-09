@@ -208,7 +208,7 @@ void boot_machine(const char *machine_name) {
   sprintf(boot_command_string, boot_command_format, machine->kernel, machine->initrd, machine->cmdline);
 
   char *exec_args[] = {
-    "echo",
+    "xhyve",
     machine->memory,
     machine->pci_dev,
     machine->lpc_dev,
