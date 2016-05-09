@@ -36,7 +36,7 @@
 #define ERROR_NEEDS_MACHINE "You need to specify a machine name"
 
 // Defaults
-#define DEFAULT_VM_DIRECTORY "xhyve.d/machines"
+#define DEFAULT_VM_DIRECTORY "/usr/local/Library/xhyve/machines"
 #define VM_EXT "xhyvm"
 #define DEFAULT_CONFIG_FILE "config.ini"
 
@@ -259,8 +259,7 @@ char *get_homedir() {
 }
 
 void get_machine_path(char *path, const char *machine_name) {
-  homedir = get_homedir();
-  sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
+  sprintf(path, "%s/%s.%s", DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
 }
 
 void parse_command(const char *command, char *machine_name) {
