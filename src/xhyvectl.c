@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <pwd.h>
+#include <err.h>
 
 #include <assert.h>
 
@@ -202,16 +203,29 @@ void start_machine(const char *machine_name) {
   load_machine_info(machine_name);
   pid_t child;
 
+  int filedes[2];
+  if (pipe(filedes) == -1) {
+    perror("pipe");
+    exit(1);
+  }
+
   if ((child = fork()) == -1) {
     perror("fork");
   } else {
     if (!child) {
+
+      // Pipe stdout
+      dup2(filedes[1], STDOUT_FILENO);
+      close(filedes[1]);
+      close(filedes[0]);
+
       char path[BUFSIZ];
       get_machine_path(path, machine_name);
       if (chdir(path) < 0) {
         fprintf(stderr, "Could not go to %s", path);
         exit(EXIT_FAILURE);
       }
+
       // child
       char *args[] = {
         "xhyve",
@@ -236,10 +250,10 @@ void start_machine(const char *machine_name) {
         NULL
       };
 
-      execvp(*args, args);
-
+      execv(*args, args);
+      exit(EXIT_SUCCESS);
     } else {
-      // parent
+      close(filedes[1]);
       wait(NULL);
     }
   }
