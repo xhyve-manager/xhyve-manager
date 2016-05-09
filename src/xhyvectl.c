@@ -36,6 +36,7 @@
 // Defaults
 #define DEFAULT_VM_DIRECTORY "xhyve.d/machines"
 #define VM_EXT "xhyvm"
+#define DEFAULT_CONFIG_FILE "config.ini"
 
 // Defaults for the virtual machine
 #define DEFAULT_MEM     "-m 1G"
@@ -145,39 +146,49 @@ void delete_machine(const char *machine_name) {
 void start_machine(const char *machine_name) {
 }
 
-// Read Configuration
-typedef struct
-{
-  const char* name;
+typedef struct {
+  const char *name;
+  const char *kernel;
 } configuration;
 
-static int handler(void* user, const char* section, const char* name,
+// Read Configuration
+static int handler(void* machine_options, const char* section, const char* name,
                    const char* value)
 {
-  configuration* pconfig = (configuration*)user;
+  configuration* pconfig = (configuration*)machine_options;
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
   if (MATCH("machine", "name")) {
-    pconfig->name = value;
+    pconfig->name = strdup(value);
+  } else if (MATCH("options", "kernel")) {
+    pconfig->kernel = strdup(value);
   } else {
     return 0;  /* unknown section/name, error */
   }
   return 1;
 }
 
-void read_config(char *path) {
-  configuration config;
+void get_config_path(char *config_path, char *path) {
+  sprintf(config_path, "%s/%s", path, DEFAULT_CONFIG_FILE);
+}
 
-  if (ini_parse(path, handler, &config) < 0) {
-    printf("Can't load 'config.ini'\n");
+void read_config(char *config_path) {
+  configuration *machine_options = malloc(sizeof(configuration));
+
+  if (ini_parse(config_path, handler, machine_options) < 0) {
+    printf("Can't load %s\n", config_path);
   }
-  printf("Machine Name: %s\n", config.name);
+
+  printf("Name: %s, Kernel: %s\n", machine_options->name, machine_options->kernel);
 }
 
 void machine_info(const char *machine_name) {
   char path[BUFSIZ];
   get_machine_path(path, machine_name);
-  read_config(path);
+  char config_path[BUFSIZ];
+  get_config_path(config_path, path);
+  read_config(config_path);
+  printf("config_path %s\n", config_path);
 };
 
 // Main
