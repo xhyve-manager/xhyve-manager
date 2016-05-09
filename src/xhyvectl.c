@@ -197,16 +197,33 @@ void load_machine_info(const char *machine_name) {
   read_config(config_path);
 };
 
+void boot_machine(const char *machine_name) {
+  char *command_devices_string_format = "%s %s %s %s %s %s";
+  char *command_kernel_string_format = "-f kexec,%s,%s,\"%s\"";
+
+  load_machine_info(machine_name);
+
+  char *command_string = NULL;
+  size_t len = 0;
+  int i;
+
+  for (i = 0; i < NUM_OPTIONS; i++) {
+    char *mopt = get_machine_option(machine, i);
+    len += strlen(mopt);
+  }
+
+  char *command_string = NULL;
+  command_string = malloc(len + 6);
+}
+
 void start_machine(const char *machine_name) {
   pid_t child;
-  child = fork();
 
-  if (child == -1) {
+  if ((child = fork()) == -1) {
     perror("fork");
   } else {
-    if (child) { // Parent
-    } else { // Child
-      load_machine_info(machine_name);
+    if (!child) {
+      boot_machine(machine_name);
     }
   }
 }
