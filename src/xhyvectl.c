@@ -192,6 +192,7 @@ void read_config(char *config_path) {
 }
 
 void load_machine_info(const char *machine_name) {
+  fprintf(stdout, "Configuration for %s\n", machine_name);
   char path[BUFSIZ];
   get_machine_path(path, machine_name);
   char config_path[BUFSIZ];
@@ -289,10 +290,10 @@ void usage() {
 }
 
 void print_machine(xvirtual_machine_t *machine) {
-  printf("== OPTIONS ==\n");
+  printf("== MACHINE CONFIG ==\n");
   int i;
   for (i = 0; i < NUM_OPTIONS; i++)
-    printf("%s\n", get_machine_option(machine, i));
+    fprintf(stdout, "%s: %s\n", machine_options[i], get_machine_option(machine, i));
 }
 
 void cleanup() {
