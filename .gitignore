@@ -1,3 +1,4 @@
 xhyvectl
 *.o
 .obj
+.DS_Store
