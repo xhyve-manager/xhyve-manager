@@ -20,7 +20,6 @@
 
 
 // Local
-#include "xhyve.h"
 #include "xhyvectl.h"
 #include "ini.h"
 
@@ -201,6 +200,49 @@ void load_machine_info(const char *machine_name) {
 
 void start_machine(const char *machine_name) {
   load_machine_info(machine_name);
+  pid_t child;
+
+  if ((child = fork()) == -1) {
+    perror("fork");
+  } else {
+    if (!child) {
+      char path[BUFSIZ];
+      get_machine_path(path, machine_name);
+      if (chdir(path) < 0) {
+        fprintf(stderr, "Could not go to %s", path);
+        exit(EXIT_FAILURE);
+      }
+      // child
+      char *args[] = {
+        "xhyve",
+        "-m",
+        "1G",
+        "-s",
+        "0:0,hostbridge",
+        "-s",
+        "31,lpc",
+        "-l",
+        "com1,stdio",
+        "-s",
+        "2:0,virtio-net",
+        "-s",
+        "4,virtio-blk,machine/hdd.img",
+        "-f",
+        "kexec,machine/vmlinuz,machine/initrd.img,earlyprintk=serial",
+        "console=ttyS0",
+        "acpi=off",
+        "root=/dev/centos/root",
+        "ro",
+        NULL
+      };
+
+      execvp(*args, args);
+
+    } else {
+      // parent
+      wait(NULL);
+    }
+  }
 }
 
 // Main
