@@ -145,31 +145,33 @@ void delete_machine(const char *machine_name) {
 void start_machine(const char *machine_name) {
 }
 
-static int handler(void* machine_config, const char* section, const char* name,
+// Read Configuration
+typedef struct
+{
+  const char* name;
+} configuration;
+
+static int handler(void* user, const char* section, const char* name,
                    const char* value)
 {
-  xvirtual_machine_t *machine = (xvirtual_machine_t*)machine_config;
+  configuration* pconfig = (configuration*)user;
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
   if (MATCH("machine", "name")) {
-    machine->name = strdup(value);
-  } else if (MATCH("options", "kernel")) {
-    machine->machine_options.kernel = strdup(value);
-  }else {
+    pconfig->name = value;
+  } else {
     return 0;  /* unknown section/name, error */
   }
   return 1;
 }
 
 void read_config(char *path) {
-  xvirtual_machine_t *config = malloc(sizeof(xvirtual_machine_t));
+  configuration config;
 
-  if (ini_parse(path, handler, config) < 0) {
+  if (ini_parse(path, handler, &config) < 0) {
     printf("Can't load 'config.ini'\n");
   }
-  printf("Machine Name: %s\n, Kernel: %s", config->name, config->machine_options.kernel);
-
-  free(config);
+  printf("Machine Name: %s\n", config.name);
 }
 
 void machine_info(const char *machine_name) {
