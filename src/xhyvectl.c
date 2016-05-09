@@ -18,7 +18,9 @@
 
 #include <assert.h>
 
+
 // Local
+#include "xhyve.h"
 #include "xhyvectl.h"
 #include "ini.h"
 
@@ -199,9 +201,6 @@ void load_machine_info(const char *machine_name) {
 
 void start_machine(const char *machine_name) {
   load_machine_info(machine_name);
-  char *command = "xhyve -m 1G -s 0:0,hostbridge -s 31,lpc -l com1,stdio -s 2:0,virtio-net -s 4,virtio-blk,/usr/local/Library/xhyve/machines/Example.xhyvm/machine/hdd.img -f kexec,/usr/local/Library/xhyve/machines/Example.xhyvm/machine/vmlinuz,/usr/local/Library/xhyve/machines/Example.xhyvm/machine/initrd.img,earlyprintk=serial console=ttyS0 acpi=off root=/dev/centos/root ro";
-
-  system(command);
 }
 
 // Main
