@@ -197,42 +197,11 @@ void load_machine_info(const char *machine_name) {
   read_config(config_path);
 };
 
-void boot_machine(const char *machine_name) {
-  load_machine_info(machine_name);
-
-  char *boot_command_format = "kexec,%s,%s,%s";
-  char *boot_command_string = NULL;
-  size_t num_sep = 3;
-  size_t len = strlen("kexec") + strlen(machine->kernel) + strlen(machine->initrd) + strlen(machine->cmdline) + num_sep + 1;
-  boot_command_string = malloc(len);
-  sprintf(boot_command_string, boot_command_format, machine->kernel, machine->initrd, machine->cmdline);
-
-  char *exec_args[] = {
-    "xhyve",
-    machine->memory,
-    machine->pci_dev,
-    machine->lpc_dev,
-    machine->networking,
-    machine->internal_storage,
-    machine->external_storage,
-    "-f",
-    boot_command_string,
-    NULL
-  };
-
-  execvp(exec_args[0], exec_args);
-}
-
 void start_machine(const char *machine_name) {
-  pid_t child;
+  load_machine_info(machine_name);
+  char *command = "xhyve -m 1G -s 0:0,hostbridge -s 31,lpc -l com1,stdio -s 2:0,virtio-net -s 4,virtio-blk,/usr/local/Library/xhyve/machines/Example.xhyvm/machine/hdd.img -f kexec,/usr/local/Library/xhyve/machines/Example.xhyvm/machine/vmlinuz,/usr/local/Library/xhyve/machines/Example.xhyvm/machine/initrd.img,earlyprintk=serial console=ttyS0 acpi=off root=/dev/centos/root ro";
 
-  if ((child = fork()) == -1) {
-    perror("fork");
-  } else {
-    if (!child) {
-      boot_machine(machine_name);
-    }
-  }
+  system(command);
 }
 
 // Main
