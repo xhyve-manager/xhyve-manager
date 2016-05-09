@@ -76,11 +76,12 @@ typedef struct XVirtualMachine {
 // Globals
 const char *homedir = NULL;
 xvirtual_machine_t *machine = NULL;
+const char *program_exec = NULL;
 
 // Helper Functions
 char *get_homedir();
 int get_command(const char *command);
-void usage(const char *program_exec);
+void usage();
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, char *machine_name);
 void run_command(const int command_id, char *machine_name);
@@ -99,12 +100,12 @@ xvirtual_machine_t *initialize_machine(char *machine_name, char *path) {
   machine->path = path;
 
   xvirtual_machine_options_t *machine_options = malloc(sizeof(machine_options));
-  machine_options->memory = DEFAULT_MEM;
-  machine_options->networking = DEFAULT_NET;
+  machine_options->memory           = DEFAULT_MEM;
+  machine_options->networking       = DEFAULT_NET;
   machine_options->internal_storage = DEFAULT_IMG_HDD;
   machine_options->external_storage = NULL;
-  machine_options->pci_dev = DEFAULT_PCI_DEV;
-  machine_options->lpc_dev = DEFAULT_LPC_DEV;
+  machine_options->pci_dev          = DEFAULT_PCI_DEV;
+  machine_options->lpc_dev          = DEFAULT_LPC_DEV;
 
   return machine;
 }
@@ -123,6 +124,9 @@ void create_machine(char *machine_name) {
     if (mkdir(path, 0700) == 0) {
       machine = malloc(sizeof(xvirtual_machine_t));
       machine = initialize_machine(machine_name, path);
+      fprintf(stdout,
+              "Machine: %s %s",
+              machine->name, machine->path);
     } else {
       perror("mkdir");
     }
@@ -138,11 +142,12 @@ void start_machine(const char *machine_name) {
 
 // Main
 int main(int argc, char **argv) {
+  program_exec = argv[PROGRAM_EXEC];
   if (argv[COMMAND]) {
     homedir = get_homedir();
     parse_command(argv[COMMAND], argv[MACHINE_NAME]);
   } else {
-    usage(argv[PROGRAM_EXEC]);
+    usage();
     exit(EXIT_FAILURE);
   }
   cleanup();
@@ -207,9 +212,10 @@ void run_command(const int command_id, char *machine_name) {
 void invalid_command(const char *command, const char *error_message) {
   fprintf(stderr, error_message, command);
   fprintf(stderr, "\n");
+  usage();
 }
 
-void usage(const char *program_exec) {
+void usage() {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
 }
 
