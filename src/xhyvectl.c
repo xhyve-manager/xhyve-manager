@@ -67,6 +67,20 @@ char *commands[] = {
   NULL
 };
 
+#define NUM_OPTIONS 9
+char* machine_options[] = {
+  "kernel",
+  "initrd",
+  "cmdline",
+  "memory",
+  "networking",
+  "internal_storage",
+  "external_storage",
+  "pci_dev",
+  "lpc_dev",
+  NULL
+};
+
 typedef struct XVirtualMachineOptions {
   char *kernel;
   char *initrd;
@@ -77,12 +91,12 @@ typedef struct XVirtualMachineOptions {
   char *external_storage;
   char *pci_dev;
   char *lpc_dev;
-} xvirtual_machine_options_t;
+} xvirtual_machine_t;
 
 // Globals
 const char *homedir = NULL;
 const char *program_exec = NULL;
-xvirtual_machine_options_t *machine_options;
+xvirtual_machine_t *machine;
 
 // Helper Functions
 void get_machine_path(char *path, const char *machine_name);
@@ -91,8 +105,9 @@ void usage();
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, char *machine_name);
 void run_command(const int command_id, char *machine_name);
-void print_machine_options(xvirtual_machine_options_t *machine_options);
-char *get_machine_option (xvirtual_machine_options_t *machine_options, int i);
+void print_machine(xvirtual_machine_t *machine);
+char *get_machine_option (xvirtual_machine_t *machine, int i);
+void set_machine_option (xvirtual_machine_t *machine, int i, const char *value);
 void cleanup();
 
 // Tasks
@@ -102,18 +117,18 @@ void list_machines() {
   fprintf(stdout, " - different\n");
 }
 
-void initialize_machine(xvirtual_machine_options_t *machine_options, char *machine_name, char path[]) {
+void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char path[]) {
   // Options
-  machine_options->kernel           = DEFAULT_KERNEL;
-  machine_options->initrd           = DEFAULT_INITRD;
-  machine_options->cmdline          = DEFAULT_CMDLINE;
-  machine_options->memory           = DEFAULT_MEM;
-  machine_options->networking       = DEFAULT_NET;
-  machine_options->internal_storage = DEFAULT_IMG_HDD;
-  machine_options->external_storage = NULL;
-  machine_options->pci_dev          = DEFAULT_PCI_DEV;
-  machine_options->lpc_dev          = DEFAULT_LPC_DEV;
-  print_machine_options(machine_options);
+  machine->kernel           = DEFAULT_KERNEL;
+  machine->initrd           = DEFAULT_INITRD;
+  machine->cmdline          = DEFAULT_CMDLINE;
+  machine->memory           = DEFAULT_MEM;
+  machine->networking       = DEFAULT_NET;
+  machine->internal_storage = DEFAULT_IMG_HDD;
+  machine->external_storage = NULL;
+  machine->pci_dev          = DEFAULT_PCI_DEV;
+  machine->lpc_dev          = DEFAULT_LPC_DEV;
+  print_machine(machine);
 }
 
 void create_machine(char *machine_name) {
@@ -127,9 +142,12 @@ void create_machine(char *machine_name) {
     char path[BUFSIZ];
     get_machine_path(path, machine_name);
 
+    // Initialize
+    machine = malloc(sizeof(xvirtual_machine_t));
+
     if (mkdir(path, 0700) == 0) {
       fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
-      initialize_machine(&machine_options, machine_name, path);
+      initialize_machine(machine, machine_name, path);
     } else {
       perror("mkdir");
     }
@@ -143,22 +161,19 @@ void delete_machine(const char *machine_name) {
 void start_machine(const char *machine_name) {
 }
 
-// Read Xvirtual_Machine_Options_T
-static int handler(void* machine_options, const char* section, const char* name,
+// Read Xvirtual_Machine_T
+static int handler(void* machine, const char* section, const char* name,
                    const char* value)
 {
-  xvirtual_machine_options_t* pconfig = (xvirtual_machine_options_t*)machine_options;
+  xvirtual_machine_t* pconfig = (xvirtual_machine_t*)machine;
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-  if (MATCH("options", "kernel")) {
-    pconfig->kernel = strdup(value);
-  } else if (MATCH("options", "initrd")) {
-    pconfig->initrd = strdup(value);
-  } else if (MATCH("options", "memory")) {
-    pconfig->memory = strdup(value); 
-  } else {
-    return 0;  /* unknown section/name, error */
+  int i;
+  for (i = 0; i < NUM_OPTIONS; i++) {
+    if (MATCH("options", machine_options[i]))
+      set_machine_option(pconfig, i, value);
   }
+
   return 1;
 }
 
@@ -167,12 +182,12 @@ void get_config_path(char *config_path, char *path) {
 }
 
 void read_config(char *config_path) {
-  machine_options = malloc(sizeof(xvirtual_machine_options_t));
+  machine = malloc(sizeof(xvirtual_machine_t));
 
-  if (ini_parse(config_path, handler, machine_options) < 0) {
+  if (ini_parse(config_path, handler, machine) < 0) {
     fprintf(stderr, "Can't load %s\n", config_path);
   } else {
-    print_machine_options(machine_options);
+    print_machine(machine);
   }
 }
 
@@ -271,28 +286,42 @@ void usage() {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
 }
 
-void print_machine_options(xvirtual_machine_options_t *machine_options) {
+void print_machine(xvirtual_machine_t *machine) {
   printf("== OPTIONS ==\n");
   int i;
-  for (i = 0; i < 8; i++)
-    printf("%s\n", get_machine_option(machine_options, i));
+  for (i = 0; i < NUM_OPTIONS; i++)
+    printf("%s\n", get_machine_option(machine, i));
 }
 
 void cleanup() {
 }
 
-char *get_machine_option (xvirtual_machine_options_t *machine_options, int i) {
+void set_machine_option (xvirtual_machine_t *machine, int i, const char *value) {
   switch(i) {
-  case 0: return machine_options->kernel;
-  case 1: return machine_options->initrd;
-  case 2: return machine_options->cmdline;
-  case 3: return machine_options->memory;
-  case 4: return machine_options->networking;
-  case 5: return machine_options->internal_storage;
-  case 6: return machine_options->external_storage;
-  case 7: return machine_options->pci_dev;
-  case 8: return machine_options->lpc_dev;
+  case 0:  machine->kernel = strdup(value);
+  case 1:  machine->initrd = strdup(value);
+  case 2:  machine->cmdline = strdup(value);
+  case 3:  machine->memory = strdup(value);
+  case 4:  machine->networking = strdup(value);
+  case 5:  machine->internal_storage = strdup(value);
+  case 6:  machine->external_storage = strdup(value);
+  case 7:  machine->pci_dev = strdup(value);
+  case 8:  machine->lpc_dev = strdup(value);
+  }
+ }
+
+char *get_machine_option (xvirtual_machine_t *machine, int i) {
+  switch(i) {
+  case 0: return machine->kernel;
+  case 1: return machine->initrd;
+  case 2: return machine->cmdline;
+  case 3: return machine->memory;
+  case 4: return machine->networking;
+  case 5: return machine->internal_storage;
+  case 6: return machine->external_storage;
+  case 7: return machine->pci_dev;
+  case 8: return machine->lpc_dev;
   }
 
   assert(0);
- }
+}
