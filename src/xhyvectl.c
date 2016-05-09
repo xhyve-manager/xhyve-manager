@@ -39,14 +39,15 @@
 #define DEFAULT_CONFIG_FILE "config.ini"
 
 // Defaults for the virtual machine
-#define DEFAULT_MEM     "-m 1G"
-#define DEFAULT_SMP     "-c 2"
 #define DEFAULT_KERNEL  "machine/vmlinuz"
 #define DEFAULT_INITRD  "machine/initrd.img"
-#define DEFAULT_NET     "-s 2:0,virtio-net"
-#define DEFAULT_IMG_HDD "-s 4,virtio-blk,machine/hdd.img"
-#define DEFAULT_PCI_DEV "-s 0:0,hostbridge -s 31,lpc"
-#define DEFAULT_LPC_DEV "-l com1,stdio"
+#define DEFAULT_CMDLINE "earlyprintk=serial console=ttyS0 acpi=off root=/dev/centos/root ro"
+#define DEFAULT_MEM     "1G"
+#define DEFAULT_SMP     "2"
+#define DEFAULT_NET     "virtio-net"
+#define DEFAULT_IMG_HDD "machine/hdd.img"
+#define DEFAULT_PCI_DEV "0:0,hostbridge -s 31,lpc"
+#define DEFAULT_LPC_DEV "com1,stdio"
 
 // Valid Commands
 #define LIST 0
@@ -66,6 +67,7 @@ char *commands[] = {
 typedef struct XVirtualMachineOptions {
   char *kernel;
   char *initrd;
+  char *cmdline;
   char *memory;
   char *networking;
   char *internal_storage;
@@ -107,10 +109,10 @@ void list_machines() {
 void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char path[]) {
   // Basic
   machine->name                             = machine_name;
-  strcat(machine->path, path);
   // Options
   machine->machine_options.kernel           = DEFAULT_KERNEL;
   machine->machine_options.initrd           = DEFAULT_INITRD;
+  machine->machine_options.cmdline          = DEFAULT_CMDLINE;
   machine->machine_options.memory           = DEFAULT_MEM;
   machine->machine_options.networking       = DEFAULT_NET;
   machine->machine_options.internal_storage = DEFAULT_IMG_HDD;
@@ -158,7 +160,9 @@ static int handler(void* machine_options, const char* section, const char* name,
     pconfig->kernel = strdup(value);
   } else if (MATCH("options", "initrd")) {
     pconfig->initrd = strdup(value);
-  }else {
+  } else if (MATCH("options", "memory")) {
+    pconfig->memory = strdup(value); 
+  } else {
     return 0;  /* unknown section/name, error */
   }
   return 1;
