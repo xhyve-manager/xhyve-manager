@@ -16,6 +16,8 @@
 #include <sys/stat.h>
 #include <pwd.h>
 
+#include <assert.h>
+
 // Local
 #include "xhyvectl.h"
 #include "ini.h"
@@ -55,6 +57,7 @@
 #define DELETE 2
 #define START 3
 #define INFO 4
+
 char *commands[] = {
   "list",
   "create",
@@ -79,7 +82,7 @@ typedef struct XVirtualMachineOptions {
 // Globals
 const char *homedir = NULL;
 const char *program_exec = NULL;
-xvirtual_machine_options_t machine_options;
+xvirtual_machine_options_t *machine_options;
 
 // Helper Functions
 void get_machine_path(char *path, const char *machine_name);
@@ -88,7 +91,8 @@ void usage();
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, char *machine_name);
 void run_command(const int command_id, char *machine_name);
-void print_machine_options(xvirtual_machine_options_t machine_options);
+void print_machine_options(xvirtual_machine_options_t *machine_options);
+char *get_machine_option (xvirtual_machine_options_t *machine_options, int i);
 void cleanup();
 
 // Tasks
@@ -109,7 +113,7 @@ void initialize_machine(xvirtual_machine_options_t *machine_options, char *machi
   machine_options->external_storage = NULL;
   machine_options->pci_dev          = DEFAULT_PCI_DEV;
   machine_options->lpc_dev          = DEFAULT_LPC_DEV;
-  print_machine_options(*machine_options);
+  print_machine_options(machine_options);
 }
 
 void create_machine(char *machine_name) {
@@ -122,6 +126,7 @@ void create_machine(char *machine_name) {
     // Create the machine_name.xhyvm directory
     char path[BUFSIZ];
     get_machine_path(path, machine_name);
+
     if (mkdir(path, 0700) == 0) {
       fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
       initialize_machine(&machine_options, machine_name, path);
@@ -162,10 +167,12 @@ void get_config_path(char *config_path, char *path) {
 }
 
 void read_config(char *config_path) {
-  xvirtual_machine_options_t *machine_options = malloc(sizeof(xvirtual_machine_options_t));
+  machine_options = malloc(sizeof(xvirtual_machine_options_t));
 
   if (ini_parse(config_path, handler, machine_options) < 0) {
     fprintf(stderr, "Can't load %s\n", config_path);
+  } else {
+    print_machine_options(machine_options);
   }
 }
 
@@ -264,16 +271,28 @@ void usage() {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
 }
 
-void print_machine_options(xvirtual_machine_options_t machine_options) {
+void print_machine_options(xvirtual_machine_options_t *machine_options) {
   printf("== OPTIONS ==\n");
-  printf("MEMORY %s\nNETWORKING %s\nIMG_HDD %s\nEXT_HDD %s\nPCI_DEV %s\nLPC_DEV %s\n",
-         machine_options.memory,
-         machine_options.networking,
-         machine_options.internal_storage,
-         machine_options.external_storage,
-         machine_options.pci_dev,
-         machine_options.lpc_dev);
+  int i;
+  for (i = 0; i < 8; i++)
+    printf("%s\n", get_machine_option(machine_options, i));
 }
 
 void cleanup() {
 }
+
+char *get_machine_option (xvirtual_machine_options_t *machine_options, int i) {
+  switch(i) {
+  case 0: return machine_options->kernel;
+  case 1: return machine_options->initrd;
+  case 2: return machine_options->cmdline;
+  case 3: return machine_options->memory;
+  case 4: return machine_options->networking;
+  case 5: return machine_options->internal_storage;
+  case 6: return machine_options->external_storage;
+  case 7: return machine_options->pci_dev;
+  case 8: return machine_options->lpc_dev;
+  }
+
+  assert(0);
+ }
