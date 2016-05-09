@@ -130,6 +130,7 @@ void create_machine(char *machine_name) {
     char path[BUFSIZ];
     get_machine_path(path, machine_name);
     if (mkdir(path, 0700) == 0) {
+      fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
       initialize_machine(&machine, machine_name, path);
     } else {
       perror("mkdir");
@@ -152,7 +153,9 @@ static int handler(void* machine_config, const char* section, const char* name,
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
   if (MATCH("machine", "name")) {
     machine->name = strdup(value);
-  } else {
+  } else if (MATCH("options", "kernel")) {
+    machine->machine_options.kernel = strdup(value);
+  }else {
     return 0;  /* unknown section/name, error */
   }
   return 1;
@@ -164,7 +167,7 @@ void read_config(char *path) {
   if (ini_parse(path, handler, config) < 0) {
     printf("Can't load 'config.ini'\n");
   }
-  printf("Machine Name: %s\n", config->name);
+  printf("Machine Name: %s\n, Kernel: %s", config->name, config->machine_options.kernel);
 
   free(config);
 }
@@ -199,7 +202,6 @@ char *get_homedir() {
 void get_machine_path(char *path, const char *machine_name) {
   homedir = get_homedir();
   sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
-  fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
 }
 
 void parse_command(const char *command, char *machine_name) {
