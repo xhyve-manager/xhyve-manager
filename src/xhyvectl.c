@@ -158,9 +158,6 @@ void create_machine(char *machine_name) {
 void delete_machine(const char *machine_name) {
 }
 
-void start_machine(const char *machine_name) {
-}
-
 // Read Xvirtual_Machine_T
 static int handler(void* machine, const char* section, const char* name,
                    const char* value)
@@ -199,6 +196,10 @@ void load_machine_info(const char *machine_name) {
   get_config_path(config_path, path);
   read_config(config_path);
 };
+
+void start_machine(const char *machine_name) {
+  load_machine_info(machine_name);
+}
 
 // Main
 int main(int argc, char **argv) {
