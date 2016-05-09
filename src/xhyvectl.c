@@ -184,19 +184,21 @@ void read_config(char *config_path) {
 
   if (ini_parse(config_path, handler, machine) < 0) {
     fprintf(stderr, "Can't load %s\n", config_path);
-  } else {
-    print_machine(machine);
   }
 }
 
 void load_machine_info(const char *machine_name) {
-  fprintf(stdout, "Configuration for %s\n", machine_name);
   char path[BUFSIZ];
   get_machine_path(path, machine_name);
   char config_path[BUFSIZ];
   get_config_path(config_path, path);
   read_config(config_path);
 };
+
+void machine_info(const char *machine_name) {
+  load_machine_info(machine_name);
+  print_machine(machine);
+}
 
 void start_machine(const char *machine_name) {
   load_machine_info(machine_name);
@@ -318,7 +320,7 @@ void run_command(const int command_id, char *machine_name) {
     delete_machine(machine_name);
     break;
   case INFO:
-    load_machine_info(machine_name);
+    machine_info(machine_name);
     break;
   }
 }
