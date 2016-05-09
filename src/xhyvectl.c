@@ -198,22 +198,29 @@ void load_machine_info(const char *machine_name) {
 };
 
 void boot_machine(const char *machine_name) {
-  char *command_devices_string_format = "%s %s %s %s %s %s";
-  char *command_kernel_string_format = "-f kexec,%s,%s,\"%s\"";
-
   load_machine_info(machine_name);
 
-  char *command_string = NULL;
-  size_t len = 0;
-  int i;
+  char *boot_command_format = "kexec,%s,%s,%s";
+  char *boot_command_string = NULL;
+  size_t num_sep = 3;
+  size_t len = strlen("kexec") + strlen(machine->kernel) + strlen(machine->initrd) + strlen(machine->cmdline) + num_sep + 1;
+  boot_command_string = malloc(len);
+  sprintf(boot_command_string, boot_command_format, machine->kernel, machine->initrd, machine->cmdline);
 
-  for (i = 0; i < NUM_OPTIONS; i++) {
-    char *mopt = get_machine_option(machine, i);
-    len += strlen(mopt);
-  }
+  char *exec_args[] = {
+    "echo",
+    machine->memory,
+    machine->pci_dev,
+    machine->lpc_dev,
+    machine->networking,
+    machine->internal_storage,
+    machine->external_storage,
+    "-f",
+    boot_command_string,
+    NULL
+  };
 
-  char *command_string = NULL;
-  command_string = malloc(len + 6);
+  execvp(exec_args[0], exec_args);
 }
 
 void start_machine(const char *machine_name) {
