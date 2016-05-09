@@ -40,8 +40,10 @@
 // Defaults for the virtual machine
 #define DEFAULT_MEM     "-m 1G"
 #define DEFAULT_SMP     "-c 2"
+#define DEFAULT_KERNEL  "machine/vmlinuz"
+#define DEFAULT_INITRD  "machine/initrd.img"
 #define DEFAULT_NET     "-s 2:0,virtio-net"
-#define DEFAULT_IMG_HDD "-s 4,virtio-blk,centos/hdd.img"
+#define DEFAULT_IMG_HDD "-s 4,virtio-blk,machine/hdd.img"
 #define DEFAULT_PCI_DEV "-s 0:0,hostbridge -s 31,lpc"
 #define DEFAULT_LPC_DEV "-l com1,stdio"
 
@@ -50,17 +52,19 @@
 #define CREATE 1
 #define DELETE 2
 #define START 3
-#define STATUS 4
+#define INFO 4
 char *commands[] = {
   "list",
   "create",
   "delete",
   "start",
-  "status",
+  "info",
   NULL
 };
 
 typedef struct XVirtualMachineOptions {
+  char *kernel;
+  char *initrd;
   char *memory;
   char *networking;
   char *internal_storage;
@@ -71,7 +75,7 @@ typedef struct XVirtualMachineOptions {
 
 typedef struct XVirtualMachine {
   char *name;
-  char *path;
+  char path[BUFSIZ];
   xvirtual_machine_options_t machine_options;
 } xvirtual_machine_t;
 
@@ -81,7 +85,7 @@ const char *program_exec = NULL;
 xvirtual_machine_t machine;
 
 // Helper Functions
-char *get_homedir();
+void get_machine_path(char *path, const char *machine_name);
 int get_command(const char *command);
 void usage();
 void invalid_command(const char *command, const char *error_message);
@@ -125,6 +129,7 @@ void test_ini() {
   printf("Config loaded from 'test.ini': version=%d, name=%s, email=%s\n",
          config.version, config.name, config.email);
 }
+
 // Tasks
 void list_machines() {
   fprintf(stdout, "Here be a list of machines:\n");
@@ -132,9 +137,13 @@ void list_machines() {
   fprintf(stdout, " - different\n");
 }
 
-void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char *path) {
+void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char path[]) {
+  // Basic
   machine->name                             = machine_name;
-  machine->path                             = path;
+  strcat(machine->path, path);
+  // Options
+  machine->machine_options.kernel           = DEFAULT_KERNEL;
+  machine->machine_options.initrd           = DEFAULT_INITRD;
   machine->machine_options.memory           = DEFAULT_MEM;
   machine->machine_options.networking       = DEFAULT_NET;
   machine->machine_options.internal_storage = DEFAULT_IMG_HDD;
@@ -153,8 +162,7 @@ void create_machine(char *machine_name) {
 
     // Create the machine_name.xhyvm directory
     char path[BUFSIZ];
-    sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
-    fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
+    get_machine_path(path, machine_name);
     if (mkdir(path, 0700) == 0) {
       initialize_machine(&machine, machine_name, path);
     } else {
@@ -170,7 +178,7 @@ void delete_machine(const char *machine_name) {
 void start_machine(const char *machine_name) {
 }
 
-void machine_status(const char *machine_name) {
+void machine_info(const char *machine_name) {
 };
 
 // Main
@@ -178,7 +186,6 @@ int main(int argc, char **argv) {
   test_ini();
   program_exec = argv[PROGRAM_EXEC];
   if (argv[COMMAND]) {
-    homedir = get_homedir();
     parse_command(argv[COMMAND], argv[MACHINE_NAME]);
   } else {
     usage();
@@ -194,6 +201,12 @@ char *get_homedir() {
   struct passwd *pw = getpwuid(getuid());
   hdir = pw->pw_dir;
   return hdir;
+}
+
+void get_machine_path(char *path, const char *machine_name) {
+  homedir = get_homedir();
+  sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
+  fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
 }
 
 void parse_command(const char *command, char *machine_name) {
@@ -228,6 +241,7 @@ void run_command(const int command_id, char *machine_name) {
     if (!machine_name) list_machines();
     else {
       fprintf(stderr, "list does not take any additional parameters\n");
+      usage();
       exit(EXIT_FAILURE);
     }
     break;
@@ -239,6 +253,9 @@ void run_command(const int command_id, char *machine_name) {
     break;
   case DELETE:
     delete_machine(machine_name);
+    break;
+  case INFO:
+    machine_info(machine_name);
     break;
   }
 }
