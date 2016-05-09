@@ -95,40 +95,6 @@ void print_machine_info(xvirtual_machine_t machine);
 void print_machine_options(xvirtual_machine_options_t machine_options);
 void cleanup();
 
-typedef struct
-{
-  int version;
-  const char* name;
-  const char* email;
-} configuration;
-
-static int handler(void* user, const char* section, const char* name,
-                   const char* value)
-{
-  configuration* pconfig = (configuration*)user;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-  if (MATCH("protocol", "version")) {
-    pconfig->version = atoi(value);
-  } else if (MATCH("user", "name")) {
-    pconfig->name = strdup(value);
-  } else if (MATCH("user", "email")) {
-    pconfig->email = strdup(value);
-  } else {
-    return 0;  /* unknown section/name, error */
-  }
-  return 1;
-}
-
-void test_ini() {
-  configuration config;
-
-  if (ini_parse("test.ini", handler, &config) < 0) {
-    printf("Can't load 'test.ini'\n");
-  }
-  printf("Config loaded from 'test.ini': version=%d, name=%s, email=%s\n",
-         config.version, config.name, config.email);
-}
 
 // Tasks
 void list_machines() {
@@ -178,12 +144,39 @@ void delete_machine(const char *machine_name) {
 void start_machine(const char *machine_name) {
 }
 
+static int handler(void* machine_config, const char* section, const char* name,
+                   const char* value)
+{
+  xvirtual_machine_t *machine = (xvirtual_machine_t*)machine_config;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+  if (MATCH("machine", "name")) {
+    machine->name = strdup(value);
+  } else {
+    return 0;  /* unknown section/name, error */
+  }
+  return 1;
+}
+
+void read_config(char *path) {
+  xvirtual_machine_t *config = malloc(sizeof(xvirtual_machine_t));
+
+  if (ini_parse(path, handler, config) < 0) {
+    printf("Can't load 'config.ini'\n");
+  }
+  printf("Machine Name: %s\n", config->name);
+
+  free(config);
+}
+
 void machine_info(const char *machine_name) {
+  char path[BUFSIZ];
+  get_machine_path(path, machine_name);
+  read_config(path);
 };
 
 // Main
 int main(int argc, char **argv) {
-  test_ini();
   program_exec = argv[PROGRAM_EXEC];
   if (argv[COMMAND]) {
     parse_command(argv[COMMAND], argv[MACHINE_NAME]);
