@@ -99,8 +99,8 @@ void list_machines() {
 }
 
 void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char *path) {
-  machine->name = machine_name;
-  machine->path = path;
+  machine->name                             = machine_name;
+  machine->path                             = path;
   machine->machine_options.memory           = DEFAULT_MEM;
   machine->machine_options.networking       = DEFAULT_NET;
   machine->machine_options.internal_storage = DEFAULT_IMG_HDD;
