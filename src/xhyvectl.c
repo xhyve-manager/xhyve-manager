@@ -198,7 +198,17 @@ void load_machine_info(const char *machine_name) {
 };
 
 void start_machine(const char *machine_name) {
-  load_machine_info(machine_name);
+  pid_t child;
+  child = fork();
+
+  if (child == -1) {
+    perror("fork");
+  } else {
+    if (child) { // Parent
+    } else { // Child
+      load_machine_info(machine_name);
+    }
+  }
 }
 
 // Main
