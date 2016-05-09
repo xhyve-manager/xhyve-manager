@@ -76,16 +76,10 @@ typedef struct XVirtualMachineOptions {
   char *lpc_dev;
 } xvirtual_machine_options_t;
 
-typedef struct XVirtualMachine {
-  char *name;
-  char path[BUFSIZ];
-  xvirtual_machine_options_t machine_options;
-} xvirtual_machine_t;
-
 // Globals
 const char *homedir = NULL;
 const char *program_exec = NULL;
-xvirtual_machine_t machine;
+xvirtual_machine_options_t machine_options;
 
 // Helper Functions
 void get_machine_path(char *path, const char *machine_name);
@@ -94,10 +88,8 @@ void usage();
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, char *machine_name);
 void run_command(const int command_id, char *machine_name);
-void print_machine_info(xvirtual_machine_t machine);
 void print_machine_options(xvirtual_machine_options_t machine_options);
 void cleanup();
-
 
 // Tasks
 void list_machines() {
@@ -106,20 +98,18 @@ void list_machines() {
   fprintf(stdout, " - different\n");
 }
 
-void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char path[]) {
-  // Basic
-  machine->name                             = machine_name;
+void initialize_machine(xvirtual_machine_options_t *machine_options, char *machine_name, char path[]) {
   // Options
-  machine->machine_options.kernel           = DEFAULT_KERNEL;
-  machine->machine_options.initrd           = DEFAULT_INITRD;
-  machine->machine_options.cmdline          = DEFAULT_CMDLINE;
-  machine->machine_options.memory           = DEFAULT_MEM;
-  machine->machine_options.networking       = DEFAULT_NET;
-  machine->machine_options.internal_storage = DEFAULT_IMG_HDD;
-  machine->machine_options.external_storage = NULL;
-  machine->machine_options.pci_dev          = DEFAULT_PCI_DEV;
-  machine->machine_options.lpc_dev          = DEFAULT_LPC_DEV;
-  print_machine_info(*machine);
+  machine_options->kernel           = DEFAULT_KERNEL;
+  machine_options->initrd           = DEFAULT_INITRD;
+  machine_options->cmdline          = DEFAULT_CMDLINE;
+  machine_options->memory           = DEFAULT_MEM;
+  machine_options->networking       = DEFAULT_NET;
+  machine_options->internal_storage = DEFAULT_IMG_HDD;
+  machine_options->external_storage = NULL;
+  machine_options->pci_dev          = DEFAULT_PCI_DEV;
+  machine_options->lpc_dev          = DEFAULT_LPC_DEV;
+  print_machine_options(*machine_options);
 }
 
 void create_machine(char *machine_name) {
@@ -134,7 +124,7 @@ void create_machine(char *machine_name) {
     get_machine_path(path, machine_name);
     if (mkdir(path, 0700) == 0) {
       fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
-      initialize_machine(&machine, machine_name, path);
+      initialize_machine(&machine_options, machine_name, path);
     } else {
       perror("mkdir");
     }
@@ -147,7 +137,6 @@ void delete_machine(const char *machine_name) {
 
 void start_machine(const char *machine_name) {
 }
-
 
 // Read Xvirtual_Machine_Options_T
 static int handler(void* machine_options, const char* section, const char* name,
@@ -176,10 +165,8 @@ void read_config(char *config_path) {
   xvirtual_machine_options_t *machine_options = malloc(sizeof(xvirtual_machine_options_t));
 
   if (ini_parse(config_path, handler, machine_options) < 0) {
-    printf("Can't load %s\n", config_path);
+    fprintf(stderr, "Can't load %s\n", config_path);
   }
-
-  printf("kernel: %s, initrd: %s \n", machine_options->kernel, machine_options->initrd);
 }
 
 void machine_info(const char *machine_name) {
@@ -188,7 +175,6 @@ void machine_info(const char *machine_name) {
   char config_path[BUFSIZ];
   get_config_path(config_path, path);
   read_config(config_path);
-  printf("config_path %s\n", config_path);
 };
 
 // Main
@@ -276,11 +262,6 @@ void invalid_command(const char *command, const char *error_message) {
 
 void usage() {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
-}
-
-void print_machine_info(xvirtual_machine_t machine) {
-  printf("MACHINE_NAME %s\nMACHINE_PATH %s\n", machine.name, machine.path);
-  print_machine_options(machine.machine_options);
 }
 
 void print_machine_options(xvirtual_machine_options_t machine_options) {
