@@ -40,6 +40,14 @@ const char *homedir;
 #define DEFAULT_VM_DIRECTORY "xhyve.d/machines"
 #define VM_EXT "xhyvm"
 
+// Defaults for the virtual machine
+#define DEFAULT_MEM     "-m 1G"
+#define DEFAULT_SMP     "-c 2"
+#define DEFAULT_NET     "-s 2:0,virtio-net"
+#define DEFAULT_IMG_HDD "-s 4,virtio-blk,centos/hdd.img"
+#define DEFAULT_PCI_DEV "-s 0:0,hostbridge -s 31,lpc"
+#define DEFAULT_LPC_DEV "-l com1,stdio"
+
 // Valid Commands
 #define LIST 0
 #define CREATE 1
@@ -53,7 +61,22 @@ char *commands[] = {
   NULL
 };
 
-// Function Declarations
+typedef struct XVirtualMachineOptions {
+  char *memory;
+  char *networking;
+  char *internal_storage;
+  char *external_storage;
+  char *pci_dev;
+  char *lpc_dev;
+} xvirtual_machine_options_t;
+
+typedef struct XVirtualMachine {
+  char *name;
+  char *path;
+  xvirtual_machine_options_t *machine_options;
+} xvirtual_machine_t;
+
+// Helper Functions
 char *get_homedir();
 int get_command(const char *command);
 void usage(const char *program_exec);
@@ -66,6 +89,22 @@ void list_machines() {
   fprintf(stdout, "Here be a list of machines:\n");
   fprintf(stdout, " - default\n");
   fprintf(stdout, " - different\n");
+}
+
+xvirtual_machine_t *initialize_machine(char *machine_name, char *path) {
+  xvirtual_machine_t *machine = malloc(sizeof(xvirtual_machine_t));
+  machine->name = machine_name;
+  machine->path = path;
+
+  xvirtual_machine_options_t *machine_options = malloc(sizeof(machine_options));
+  machine_options->memory = DEFAULT_MEM;
+  machine_options->networking = DEFAULT_NET;
+  machine_options->internal_storage = DEFAULT_IMG_HDD;
+  machine_options->external_storage = NULL;
+  machine_options->pci_dev = DEFAULT_PCI_DEV;
+  machine_options->lpc_dev = DEFAULT_LPC_DEV;
+
+  return machine;
 }
 
 void create_machine(const char *machine_name) {
@@ -81,6 +120,7 @@ void create_machine(const char *machine_name) {
     fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
     if (mkdir(path, 0700) == 0) {
       fprintf(stdout, "Successfully initialized machine at %s\n", path);
+
     } else {
       perror("mkdir");
     }
