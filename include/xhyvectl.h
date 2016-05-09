@@ -18,7 +18,7 @@ void list_machines();
  * Creates a new virtual machine
  * @param machine_name the name of the new machine
  **/
-void create_machine(const char *machine_name);
+void create_machine(char *machine_name);
 
 /**
  * Delete virtual machine

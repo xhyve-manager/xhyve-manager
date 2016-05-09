@@ -20,9 +20,6 @@
 #include "xhyvectl.h"
 #include "ini.h"
 
-// Get homedir
-const char *homedir;
-
 // Preprocessed
 #define PROGRAM_EXEC 0
 #define COMMAND 1
@@ -76,13 +73,18 @@ typedef struct XVirtualMachine {
   xvirtual_machine_options_t *machine_options;
 } xvirtual_machine_t;
 
+// Globals
+const char *homedir = NULL;
+xvirtual_machine_t *machine = NULL;
+
 // Helper Functions
 char *get_homedir();
 int get_command(const char *command);
 void usage(const char *program_exec);
 void invalid_command(const char *command, const char *error_message);
-void parse_command(const char *command, const char *machine_name);
-void run_command(const int command_id, const char *machine_name);
+void parse_command(const char *command, char *machine_name);
+void run_command(const int command_id, char *machine_name);
+void cleanup();
 
 // Tasks
 void list_machines() {
@@ -107,7 +109,7 @@ xvirtual_machine_t *initialize_machine(char *machine_name, char *path) {
   return machine;
 }
 
-void create_machine(const char *machine_name) {
+void create_machine(char *machine_name) {
   if (!machine_name) {
     fprintf(stderr, ERROR_NEEDS_MACHINE);
     fprintf(stderr, "\n");
@@ -119,8 +121,8 @@ void create_machine(const char *machine_name) {
     sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
     fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
     if (mkdir(path, 0700) == 0) {
-      fprintf(stdout, "Successfully initialized machine at %s\n", path);
-
+      machine = malloc(sizeof(xvirtual_machine_t));
+      machine = initialize_machine(machine_name, path);
     } else {
       perror("mkdir");
     }
@@ -143,6 +145,7 @@ int main(int argc, char **argv) {
     usage(argv[PROGRAM_EXEC]);
     exit(EXIT_FAILURE);
   }
+  cleanup();
   exit(EXIT_SUCCESS);
 }
 
@@ -154,7 +157,7 @@ char *get_homedir() {
   return hdir;
 }
 
-void parse_command(const char *command, const char *machine_name) {
+void parse_command(const char *command, char *machine_name) {
   int command_id;
   if ((command_id = get_command(command)) != -1) {
     run_command(command_id, machine_name);
@@ -180,7 +183,7 @@ int get_command(const char *command) {
   return command_id;
 }
 
-void run_command(const int command_id, const char *machine_name) {
+void run_command(const int command_id, char *machine_name) {
   switch (command_id) {
   case LIST:
     if (!machine_name) list_machines();
@@ -208,4 +211,8 @@ void invalid_command(const char *command, const char *error_message) {
 
 void usage(const char *program_exec) {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
+}
+
+void cleanup() {
+  if (machine) free(machine);
 }
