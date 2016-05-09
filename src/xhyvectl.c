@@ -146,23 +146,19 @@ void delete_machine(const char *machine_name) {
 void start_machine(const char *machine_name) {
 }
 
-typedef struct {
-  const char *name;
-  const char *kernel;
-} configuration;
 
-// Read Configuration
+// Read Xvirtual_Machine_Options_T
 static int handler(void* machine_options, const char* section, const char* name,
                    const char* value)
 {
-  configuration* pconfig = (configuration*)machine_options;
+  xvirtual_machine_options_t* pconfig = (xvirtual_machine_options_t*)machine_options;
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-  if (MATCH("machine", "name")) {
-    pconfig->name = strdup(value);
-  } else if (MATCH("options", "kernel")) {
+  if (MATCH("options", "kernel")) {
     pconfig->kernel = strdup(value);
-  } else {
+  } else if (MATCH("options", "initrd")) {
+    pconfig->initrd = strdup(value);
+  }else {
     return 0;  /* unknown section/name, error */
   }
   return 1;
@@ -173,13 +169,13 @@ void get_config_path(char *config_path, char *path) {
 }
 
 void read_config(char *config_path) {
-  configuration *machine_options = malloc(sizeof(configuration));
+  xvirtual_machine_options_t *machine_options = malloc(sizeof(xvirtual_machine_options_t));
 
   if (ini_parse(config_path, handler, machine_options) < 0) {
     printf("Can't load %s\n", config_path);
   }
 
-  printf("Name: %s, Kernel: %s\n", machine_options->name, machine_options->kernel);
+  printf("kernel: %s, initrd: %s \n", machine_options->kernel, machine_options->initrd);
 }
 
 void machine_info(const char *machine_name) {
