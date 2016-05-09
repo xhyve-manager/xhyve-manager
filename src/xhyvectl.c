@@ -50,11 +50,13 @@
 #define CREATE 1
 #define DELETE 2
 #define START 3
+#define STATUS 4
 char *commands[] = {
   "list",
   "create",
   "delete",
   "start",
+  "status",
   NULL
 };
 
@@ -70,13 +72,13 @@ typedef struct XVirtualMachineOptions {
 typedef struct XVirtualMachine {
   char *name;
   char *path;
-  xvirtual_machine_options_t *machine_options;
+  xvirtual_machine_options_t machine_options;
 } xvirtual_machine_t;
 
 // Globals
 const char *homedir = NULL;
-xvirtual_machine_t *machine = NULL;
 const char *program_exec = NULL;
+xvirtual_machine_t machine;
 
 // Helper Functions
 char *get_homedir();
@@ -85,6 +87,8 @@ void usage();
 void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, char *machine_name);
 void run_command(const int command_id, char *machine_name);
+void print_machine_info(xvirtual_machine_t machine);
+void print_machine_options(xvirtual_machine_options_t machine_options);
 void cleanup();
 
 // Tasks
@@ -94,20 +98,16 @@ void list_machines() {
   fprintf(stdout, " - different\n");
 }
 
-xvirtual_machine_t *initialize_machine(char *machine_name, char *path) {
-  xvirtual_machine_t *machine = malloc(sizeof(xvirtual_machine_t));
+void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char *path) {
   machine->name = machine_name;
   machine->path = path;
-
-  xvirtual_machine_options_t *machine_options = malloc(sizeof(machine_options));
-  machine_options->memory           = DEFAULT_MEM;
-  machine_options->networking       = DEFAULT_NET;
-  machine_options->internal_storage = DEFAULT_IMG_HDD;
-  machine_options->external_storage = NULL;
-  machine_options->pci_dev          = DEFAULT_PCI_DEV;
-  machine_options->lpc_dev          = DEFAULT_LPC_DEV;
-
-  return machine;
+  machine->machine_options.memory           = DEFAULT_MEM;
+  machine->machine_options.networking       = DEFAULT_NET;
+  machine->machine_options.internal_storage = DEFAULT_IMG_HDD;
+  machine->machine_options.external_storage = NULL;
+  machine->machine_options.pci_dev          = DEFAULT_PCI_DEV;
+  machine->machine_options.lpc_dev          = DEFAULT_LPC_DEV;
+  print_machine_info(*machine);
 }
 
 void create_machine(char *machine_name) {
@@ -122,11 +122,7 @@ void create_machine(char *machine_name) {
     sprintf(path, "%s/.%s/%s.%s", homedir, DEFAULT_VM_DIRECTORY, machine_name, VM_EXT);
     fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
     if (mkdir(path, 0700) == 0) {
-      machine = malloc(sizeof(xvirtual_machine_t));
-      machine = initialize_machine(machine_name, path);
-      fprintf(stdout,
-              "Machine: %s %s",
-              machine->name, machine->path);
+      initialize_machine(&machine, machine_name, path);
     } else {
       perror("mkdir");
     }
@@ -139,6 +135,9 @@ void delete_machine(const char *machine_name) {
 
 void start_machine(const char *machine_name) {
 }
+
+void machine_status(const char *machine_name) {
+};
 
 // Main
 int main(int argc, char **argv) {
@@ -219,6 +218,21 @@ void usage() {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
 }
 
+void print_machine_info(xvirtual_machine_t machine) {
+  printf("MACHINE_NAME %s\nMACHINE_PATH %s\n", machine.name, machine.path);
+  print_machine_options(machine.machine_options);
+}
+
+void print_machine_options(xvirtual_machine_options_t machine_options) {
+  printf("== OPTIONS ==\n");
+  printf("MEMORY %s\nNETWORKING %s\nIMG_HDD %s\nEXT_HDD %s\nPCI_DEV %s\nLPC_DEV %s\n",
+         machine_options.memory,
+         machine_options.networking,
+         machine_options.internal_storage,
+         machine_options.external_storage,
+         machine_options.pci_dev,
+         machine_options.lpc_dev);
+}
+
 void cleanup() {
-  if (machine) free(machine);
 }
