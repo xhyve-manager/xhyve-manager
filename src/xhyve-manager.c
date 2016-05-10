@@ -59,6 +59,7 @@ char *get_config_path(const char *name, const char *path) {
   }
 
   asprintf(&config_path, "%s/config.ini", machine_path);
+  free(machine_path);
 
   return config_path;
 }
@@ -120,6 +121,9 @@ int main(int argc, char **argv) {
 
     param = get_config_path(name, path);
     parse_args(command, param, machine);
+
+    if (machine) free(machine);
+    if (param) free(param);
 
     exit(EXIT_SUCCESS);
   } else {
