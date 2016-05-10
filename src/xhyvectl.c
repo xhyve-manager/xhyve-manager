@@ -21,8 +21,15 @@
 #include <xhyvectl/xhyvectl.h>
 #include <ini/ini.h>
 
-int main(void) {
-  fprintf(stdout, "Hello, it's me.\n");
+void print_usage(char **argv) {
+  fprintf(stderr, "%s <command> <machine-name>\n", *argv);
+}
+
+int main(int argc, char **argv) {
+  if (argc < 2) {
+    print_usage(argv);
+    exit(EXIT_FAILURE);
+  }
   return 0;
 }
 
