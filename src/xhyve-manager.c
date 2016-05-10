@@ -57,14 +57,14 @@ void load_config(xhyve_virtual_machine_t *machine, const char *name, const char 
   asprintf(&config_path, "%s/config.ini", machine_path);
 
   if (ini_parse(config_path, handler, machine) < 0) {
-    fprintf(stderr, "Sorry, cannot load config.ini\n");
+    fprintf(stderr, "Cannot load %s\n", machine_path);
   } else {
     fprintf(stdout, "[type] %s\n[memory] %s\n[cpus] %s\n", machine->type, machine->memory, machine->cpus);
   }
 }
 
 void print_usage(void) {
-  fprintf(stderr, "xhyve-manager <command> <machine-name> [machine-path]\n");
+  fprintf(stderr, "xhyve-manager -n <machine-name> -p <machine-path> \n");
 }
 
 int main(int argc, char **argv) {
@@ -92,10 +92,14 @@ int main(int argc, char **argv) {
   }
 
   if (name || path) {
+    if (name && path) {
+      print_usage();
+      exit(EXIT_FAILURE);
+    }
+
     xhyve_virtual_machine_t *machine = NULL;
     machine = malloc(sizeof(xhyve_virtual_machine_t));
     load_config(machine, name, path);
-
     exit(EXIT_SUCCESS);
   } else {
     print_usage();
