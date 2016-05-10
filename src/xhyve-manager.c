@@ -84,6 +84,8 @@ int print_usage(void) {
   fprintf(stderr, "Usage: xhyve-manager [-np <machine name or path>] <command>\n");
   fprintf(stderr, "\t-n: specify name of machine in XHYVMS directory\n");
   fprintf(stderr, "\t-p: specify path to xhyvm\n");
+  fprintf(stderr, "\tcommands:\n");
+  fprintf(stderr, "\t  info: show info about machine\n");
   exit(EXIT_FAILURE);
 }
 
