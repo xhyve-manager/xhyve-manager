@@ -33,7 +33,8 @@
 
 // Error Messages
 #define ERROR_INVALID_COMMAND  "%s is not a valid command"
-#define ERROR_MACHINE_NOTFOUND "Could not find VM %s"
+#define ERROR_INVALID_CONFIG   "Invalid or missing configuration: %s"
+#define ERROR_MACHINE_NOTFOUND "Invalid or missing VM: %s"
 #define ERROR_NEEDS_MACHINE    "You need to specify a machine name"
 
 // Defaults
@@ -191,7 +192,8 @@ void read_config(char *config_path) {
   initialize_machine(machine);
 
   if (ini_parse(config_path, handler, machine) < 0) {
-    fprintf(stderr, "Can't load %s\n", config_path);
+    fprintf(stderr, ERROR_INVALID_CONFIG, config_path);
+    fprintf(stderr, "\n");
   }
 }
 
@@ -219,7 +221,8 @@ void start_machine(const char *machine_name) {
       char path[BUFSIZ];
       get_machine_path(path, machine_name);
       if (chdir(path) < 0) {
-        fprintf(stderr, "Could not go to %s", path);
+        fprintf(stderr, ERROR_MACHINE_NOTFOUND, path);
+        fprintf(stderr, "\n");
         exit(EXIT_FAILURE);
       }
       // child
@@ -309,28 +312,26 @@ int get_command(const char *command) {
 }
 
 void run_command(const int command_id, char *machine_name) {
-  switch (command_id) {
-  case LIST:
-    if (!machine_name) list_machines();
-    else {
-      fprintf(stderr, "list does not take any additional parameters\n");
-      usage();
-      exit(EXIT_FAILURE);
+  if (!machine_name && command_id == LIST) list_machines();
+  else if (machine_name) {
+    switch (command_id) {
+    case START:
+      start_machine(machine_name);
+      break;
+    case CREATE:
+      create_machine(machine_name);
+      break;
+    case DELETE:
+      delete_machine(machine_name);
+      break;
+    case INFO:
+      machine_info(machine_name);
+      break;
     }
-    break;
-  case START:
-    start_machine(machine_name);
-    break;
-  case CREATE:
-    create_machine(machine_name);
-    break;
-  case DELETE:
-    delete_machine(machine_name);
-    break;
-  case INFO:
-    machine_info(machine_name);
-    break;
+  } else {
+    usage();
   }
+  
 }
 
 void invalid_command(const char *command, const char *error_message) {
@@ -341,6 +342,7 @@ void invalid_command(const char *command, const char *error_message) {
 
 void usage() {
   fprintf(stderr, "Usage: %s <command> <virtual-machine-name> \n", program_exec);
+  exit(EXIT_FAILURE);
 }
 
 void print_machine(xvirtual_machine_t *machine) {
