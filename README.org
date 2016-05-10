@@ -1,6 +1,7 @@
 * xhyvectl
 ** Planned Features
 + Manage lifecycle of virtual machines (inspired by bhyvectl on FreeBSD)
++ Build and package virtual machines
 + Native, OS X GUI (inspired by virt-manager on Linux)
 ** Challenges
 *** Linux guests 
@@ -18,11 +19,13 @@
 + [ ] ~start <name>~ start virtual machine. at some point start it in detached mode and do something like ~vagrant ssh~. Maybe ~xhyve login~.
 *** TODO Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
 **** Create a ~config.ini~ from prompting the user for these values:
-+ [ ] memory
-+ [ ] cpus
++ [X] memory
++ [X] cpus
 + [ ] networking
 + [ ] storage
++ [ ] type: linux or bsd so we know which initialization to load
 **** Storage
 + [ ] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
 + [ ] HDD: specify where this is on disk; create if it doesn't exist or just have user specify it.
+*** Create run script 
 *** TODO At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.

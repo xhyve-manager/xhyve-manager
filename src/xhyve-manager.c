@@ -44,7 +44,11 @@ static int handler(void* machine, const char* section, const char* key,
   return 1;
 }
 
-void load_config(xhyve_virtual_machine_t *machine, const char *name, const char *path) {
+void print_machine(xhyve_virtual_machine_t *machine) {
+  fprintf(stdout, "[type] %s\n[memory] %s\n[cpus] %s\n", machine->type, machine->memory, machine->cpus);
+}
+
+char *get_config_path(const char *name, const char *path) {
   char *config_path = NULL;
   char *machine_path = NULL;
 
@@ -56,10 +60,23 @@ void load_config(xhyve_virtual_machine_t *machine, const char *name, const char 
 
   asprintf(&config_path, "%s/config.ini", machine_path);
 
+  return config_path;
+}
+
+void load_config(xhyve_virtual_machine_t *machine, const char *config_path) {
   if (ini_parse(config_path, handler, machine) < 0) {
-    fprintf(stderr, "Cannot load %s\n", machine_path);
+    fprintf(stderr, "Cannot load machine\n");
+  }
+}
+
+void parse_args(const char *command, const char *param, xhyve_virtual_machine_t *machine) {
+  machine = malloc(sizeof(xhyve_virtual_machine_t));
+  if (strcmp(command, "info") == 0) {
+    load_config(machine, param);
+    print_machine(machine);
   } else {
-    fprintf(stdout, "[type] %s\n[memory] %s\n[cpus] %s\n", machine->type, machine->memory, machine->cpus);
+    print_usage();
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -79,6 +96,8 @@ int main(int argc, char **argv) {
   char *command = NULL;
   char *name = NULL;
   char *path = NULL;
+  char *param = NULL;
+  xhyve_virtual_machine_t *machine = NULL;
 
   while ((opt = getopt(argc, argv, "n::p::")) != -1) {
     switch (opt) {
@@ -102,9 +121,9 @@ int main(int argc, char **argv) {
       exit(EXIT_FAILURE);
     }
 
-    xhyve_virtual_machine_t *machine = NULL;
-    machine = malloc(sizeof(xhyve_virtual_machine_t));
-    load_config(machine, name, path);
+    param = get_config_path(name, path);
+    parse_args(command, param, machine);
+
     exit(EXIT_SUCCESS);
   } else {
     print_usage();
