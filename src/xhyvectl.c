@@ -25,7 +25,7 @@
 
 // Preprocessed
 #define PROGRAM_EXEC 0
-#define COMMAND 1
+#define COMMAND      1
 #define MACHINE_NAME 2
 
 // Messages
