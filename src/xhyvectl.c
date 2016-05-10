@@ -32,25 +32,27 @@
 #define MESSAGE_PARSE_COMMAND "%s machine %s with command_id %d"
 
 // Error Messages
-#define ERROR_INVALID_COMMAND "%s is not a valid command"
+#define ERROR_INVALID_COMMAND  "%s is not a valid command"
 #define ERROR_MACHINE_NOTFOUND "Could not find VM %s"
-#define ERROR_NEEDS_MACHINE "You need to specify a machine name"
+#define ERROR_NEEDS_MACHINE    "You need to specify a machine name"
 
 // Defaults
 #define DEFAULT_VM_DIRECTORY "/usr/local/Library/xhyve/machines"
-#define VM_EXT "xhyvm"
-#define DEFAULT_CONFIG_FILE "config.ini"
+#define VM_EXT               "xhyvm"
+#define DEFAULT_CONFIG_FILE  "config.ini"
 
 // Defaults for the virtual machine
-#define DEFAULT_KERNEL  "machine/vmlinuz"
-#define DEFAULT_INITRD  "machine/initrd.img"
-#define DEFAULT_CMDLINE "earlyprintk=serial console=ttyS0 acpi=off root=/dev/centos/root ro"
-#define DEFAULT_MEM     "1G"
-#define DEFAULT_SMP     "2"
-#define DEFAULT_NET     "virtio-net"
-#define DEFAULT_IMG_HDD "machine/hdd.img"
-#define DEFAULT_PCI_DEV "0:0,hostbridge -s 31,lpc"
-#define DEFAULT_LPC_DEV "com1,stdio"
+#define DEFAULT_KERNEL    "machine/vmlinuz"
+#define DEFAULT_INITRD    "machine/initrd.img"
+#define DEFAULT_CMDLINE   "earlyprintk=serial console=ttyS0 acpi=off root=/dev/centos/root ro"
+#define DEFAULT_MEM       "1G"
+#define DEFAULT_CPU       "2"
+#define DEFAULT_NET       "virtio-net"
+#define DEFAULT_IMG_HDD   "machine/hdd.img"
+#define DEFAULT_IMG_CDD   "live.iso"
+#define DEFAULT_PCI_DEV_0 "0:0,hostbridge"
+#define DEFAULT_PCI_DEV_1 "31,lpc"
+#define DEFAULT_LPC_DEV   "com1,stdio"
 
 // Valid Commands
 #define LIST 0
@@ -68,16 +70,18 @@ char *commands[] = {
   NULL
 };
 
-#define NUM_OPTIONS 9
-char* machine_options[] = {
+#define NUM_MACHINE_OPTIONS 11
+char *machine_options[] = {
   "kernel",
   "initrd",
   "cmdline",
   "memory",
+  "cpus",
   "networking",
   "internal_storage",
   "external_storage",
-  "pci_dev",
+  "pci_dev_0",
+  "pci_dev_1",
   "lpc_dev",
   NULL
 };
@@ -87,10 +91,12 @@ typedef struct XVirtualMachineOptions {
   char *initrd;
   char *cmdline;
   char *memory;
+  char *cpus;
   char *networking;
   char *internal_storage;
   char *external_storage;
-  char *pci_dev;
+  char *pci_dev_0;
+  char *pci_dev_1;
   char *lpc_dev;
 } xvirtual_machine_t;
 
@@ -107,8 +113,8 @@ void invalid_command(const char *command, const char *error_message);
 void parse_command(const char *command, char *machine_name);
 void run_command(const int command_id, char *machine_name);
 void print_machine(xvirtual_machine_t *machine);
-char *get_machine_option (xvirtual_machine_t *machine, int i);
-void set_machine_option (xvirtual_machine_t *machine, int i, const char *value);
+char *get_machine_option(xvirtual_machine_t *machine, int i);
+void set_machine_option(xvirtual_machine_t *machine, int i, const char *value);
 void cleanup();
 
 // Tasks
@@ -118,18 +124,19 @@ void list_machines() {
   fprintf(stdout, " - different\n");
 }
 
-void initialize_machine(xvirtual_machine_t *machine, char *machine_name, char path[]) {
+void initialize_machine(xvirtual_machine_t *machine) {
   // Options
   machine->kernel           = DEFAULT_KERNEL;
   machine->initrd           = DEFAULT_INITRD;
   machine->cmdline          = DEFAULT_CMDLINE;
   machine->memory           = DEFAULT_MEM;
+  machine->cpus             = DEFAULT_CPU;
   machine->networking       = DEFAULT_NET;
   machine->internal_storage = DEFAULT_IMG_HDD;
-  machine->external_storage = NULL;
-  machine->pci_dev          = DEFAULT_PCI_DEV;
+  machine->external_storage = DEFAULT_IMG_CDD;
+  machine->pci_dev_0        = DEFAULT_PCI_DEV_0;
+  machine->pci_dev_1        = DEFAULT_PCI_DEV_1;
   machine->lpc_dev          = DEFAULT_LPC_DEV;
-  print_machine(machine);
 }
 
 void create_machine(char *machine_name) {
@@ -148,7 +155,7 @@ void create_machine(char *machine_name) {
 
     if (mkdir(path, 0700) == 0) {
       fprintf(stdout, "Creating %s.%s\n", machine_name,VM_EXT);
-      initialize_machine(machine, machine_name, path);
+      initialize_machine(machine);
     } else {
       perror("mkdir");
     }
@@ -167,7 +174,7 @@ static int handler(void* machine, const char* section, const char* name,
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
   int i;
-  for (i = 0; i < NUM_OPTIONS; i++) {
+  for (i = 0; i < NUM_MACHINE_OPTIONS; i++) {
     if (MATCH("options", machine_options[i]))
       set_machine_option(pconfig, i, value);
   }
@@ -181,6 +188,7 @@ void get_config_path(char *config_path, char *path) {
 
 void read_config(char *config_path) {
   machine = malloc(sizeof(xvirtual_machine_t));
+  initialize_machine(machine);
 
   if (ini_parse(config_path, handler, machine) < 0) {
     fprintf(stderr, "Can't load %s\n", config_path);
@@ -338,7 +346,7 @@ void usage() {
 void print_machine(xvirtual_machine_t *machine) {
   printf("== MACHINE CONFIG ==\n");
   int i;
-  for (i = 0; i < NUM_OPTIONS; i++)
+  for (i = 0; i < NUM_MACHINE_OPTIONS; i++)
     fprintf(stdout, "%s: %s\n", machine_options[i], get_machine_option(machine, i));
 }
 
@@ -351,26 +359,31 @@ void set_machine_option (xvirtual_machine_t *machine, int i, const char *value) 
   case 1:  machine->initrd = strdup(value);
   case 2:  machine->cmdline = strdup(value);
   case 3:  machine->memory = strdup(value);
-  case 4:  machine->networking = strdup(value);
-  case 5:  machine->internal_storage = strdup(value);
-  case 6:  machine->external_storage = strdup(value);
-  case 7:  machine->pci_dev = strdup(value);
-  case 8:  machine->lpc_dev = strdup(value);
+  case 4:  machine->cpus = strdup(value);
+  case 5:  machine->networking = strdup(value);
+  case 6:  machine->internal_storage = strdup(value);
+  case 7:  machine->external_storage = strdup(value);
+  case 8:  machine->pci_dev_0 = strdup(value);
+  case 9:  machine->pci_dev_1 = strdup(value);
+  case 10: machine->lpc_dev = strdup(value);
   }
  }
 
 char *get_machine_option (xvirtual_machine_t *machine, int i) {
   switch(i) {
-  case 0: return machine->kernel;
-  case 1: return machine->initrd;
-  case 2: return machine->cmdline;
-  case 3: return machine->memory;
-  case 4: return machine->networking;
-  case 5: return machine->internal_storage;
-  case 6: return machine->external_storage;
-  case 7: return machine->pci_dev;
-  case 8: return machine->lpc_dev;
+  case 0:  return machine->kernel;
+  case 1:  return machine->initrd;
+  case 2:  return machine->cmdline;
+  case 3:  return machine->memory;
+  case 4:  return machine->cpus;
+  case 5:  return machine->networking;
+  case 6:  return machine->internal_storage;
+  case 7:  return machine->external_storage;
+  case 8:  return machine->pci_dev_0;
+  case 9:  return machine->pci_dev_1;
+  case 10: return machine->lpc_dev;
   }
 
   assert(0);
 }
+
