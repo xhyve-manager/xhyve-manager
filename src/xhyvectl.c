@@ -18,10 +18,9 @@
 
 #include <assert.h>
 
-
 // Local
-#include "xhyvectl.h"
-#include "ini.h"
+#include <xhyvectl/xhyvectl.h>
+#include <ini/ini.h>
 
 // Preprocessed
 #define PROGRAM_EXEC 0
