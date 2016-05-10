@@ -38,6 +38,7 @@
 #define ERROR_NEEDS_MACHINE    "You need to specify a machine name"
 
 // Defaults
+#define DEFAULT_VM_RUNNER    "xhyve"
 #define DEFAULT_VM_DIRECTORY "/usr/local/Library/xhyve/machines"
 #define VM_EXT               "xhyvm"
 #define DEFAULT_CONFIG_FILE  "config.ini"
@@ -227,7 +228,7 @@ void start_machine(const char *machine_name) {
       }
       // child
       char *args[] = {
-        "xhyve",
+        DEFAULT_VM_RUNNER,
         "-m",
         "1G",
         "-s",
