@@ -46,13 +46,15 @@ static int handler(void* machine, const char* section, const char* key,
 
 void load_config(xhyve_virtual_machine_t *machine, const char *name, const char *path) {
   char *config_path = NULL;
-  const char *base_path = DEFAULT_VM_DIR;
+  char *machine_path = NULL;
 
   if (path) {
-    config_path = strdup(path);
+    machine_path = strdup(path);
   } else {
-    asprintf(&config_path, "%s/%s.%s/%s", base_path, name, DEFAULT_VM_EXT, "config.ini");
+    asprintf(&machine_path, "%s/%s.%s", DEFAULT_VM_DIR, name, DEFAULT_VM_EXT);
   }
+
+  asprintf(&config_path, "%s/config.ini", machine_path);
 
   if (ini_parse(config_path, handler, machine) < 0) {
     fprintf(stderr, "Sorry, cannot load config.ini\n");
