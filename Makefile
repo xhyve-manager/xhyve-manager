@@ -35,6 +35,7 @@ binprefix =
 bindir = $(prefix)/bin
 builddir = $(CURDIR)/build
 
+
 all: $(XHYVE_EXEC) | build
 
 .PHONY: clean all
@@ -60,13 +61,10 @@ $(XHYVE_EXEC): $(XHYVE_EXEC).sym
 	@echo strip $(notdir $@)
 	$(VERBOSE) $(ENV) $(STRIP) $(XHYVE_EXEC).sym -o $@
 
-.PHONY: install
-install: all
-	$(INSTALL) -C build/xhyve $(bindir)/$(binprefix)/xhyve
-
-.PHONY: uninstall
-uninstall:
-	rm $(bindir)/$(binprefix)/xhyve
-
+.PHONY: clean
 clean:
 	@rm -rf build
+
+test: clean all
+	@echo "Testing -p XHYVMS_DIR/Example info" && $(XHYVE_EXEC) -p /usr/local/Library/xhyve/machines/Example.xhyvm info
+	@echo "Testing -n Example info" && $(XHYVE_EXEC) -n Example info
