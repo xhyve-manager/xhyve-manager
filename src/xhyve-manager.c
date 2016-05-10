@@ -44,9 +44,15 @@ static int handler(void* machine, const char* section, const char* key,
   return 1;
 }
 
-void load_config(xhyve_virtual_machine_t *machine, const char *name) {
+void load_config(xhyve_virtual_machine_t *machine, const char *name, const char *path) {
   char *config_path = NULL;
-  asprintf(&config_path, "%s/%s.%s/%s", DEFAULT_VM_DIR, name, DEFAULT_VM_EXT, "config.ini");
+  const char *base_path = DEFAULT_VM_DIR;
+
+  if (path) {
+    config_path = strdup(path);
+  } else {
+    asprintf(&config_path, "%s/%s.%s/%s", base_path, name, DEFAULT_VM_EXT, "config.ini");
+  }
 
   if (ini_parse(config_path, handler, machine) < 0) {
     fprintf(stderr, "Sorry, cannot load config.ini\n");
@@ -55,21 +61,44 @@ void load_config(xhyve_virtual_machine_t *machine, const char *name) {
   }
 }
 
-void print_usage(char **argv) {
-  fprintf(stderr, "%s <command> <machine-name>\n", *argv);
+void print_usage(void) {
+  fprintf(stderr, "xhyve-manager <command> <machine-name> [machine-path]\n");
 }
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    print_usage(argv);
+    print_usage();
     exit(EXIT_FAILURE);
   }
 
-  xhyve_virtual_machine_t *machine = NULL;
-  machine = malloc(sizeof(xhyve_virtual_machine_t));
-  load_config(machine, "Example");
+  int opt;
+  char *name = NULL;
+  char *path = NULL;
 
-  return 0;
+  while ((opt = getopt(argc, argv, "n:p:")) != -1) {
+    switch (opt) {
+    case 'n':
+      name = optarg;
+      break;
+    case 'p':
+      path = optarg;
+      break;
+    default:
+      print_usage();
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  if (name || path) {
+    xhyve_virtual_machine_t *machine = NULL;
+    machine = malloc(sizeof(xhyve_virtual_machine_t));
+    load_config(machine, name, path);
+
+    exit(EXIT_SUCCESS);
+  } else {
+    print_usage();
+    exit(EXIT_FAILURE);
+  }
 }
 
 

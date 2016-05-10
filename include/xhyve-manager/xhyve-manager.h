@@ -17,7 +17,7 @@ typedef struct xhyve_virtual_machine {
   char *cpus;
 } xhyve_virtual_machine_t;
 
-void load_config(xhyve_virtual_machine_t *machine, const char *name);
-void print_usage(char **argv);
+void load_config(xhyve_virtual_machine_t *machine, const char *name, const char *path);
+void print_usage(void);
 
 #endif
