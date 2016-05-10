@@ -64,7 +64,9 @@ void load_config(xhyve_virtual_machine_t *machine, const char *name, const char 
 }
 
 void print_usage(void) {
-  fprintf(stderr, "xhyve-manager -n <machine-name> -p <machine-path> \n");
+  fprintf(stderr, "Usage: xhyve-manager [-np <machine name or path>] <command>\n");
+  fprintf(stderr, "\t-n: specify name of machine in XHYVMS directory\n");
+  fprintf(stderr, "\t-p: specify path to xhyvm\n");
 }
 
 int main(int argc, char **argv) {
@@ -74,16 +76,19 @@ int main(int argc, char **argv) {
   }
 
   int opt;
+  char *command = NULL;
   char *name = NULL;
   char *path = NULL;
 
-  while ((opt = getopt(argc, argv, "n:p:")) != -1) {
+  while ((opt = getopt(argc, argv, "n::p::")) != -1) {
     switch (opt) {
     case 'n':
       name = optarg;
+      command = argv[optind];
       break;
     case 'p':
       path = optarg;
+      command = argv[optind];
       break;
     default:
       print_usage();
