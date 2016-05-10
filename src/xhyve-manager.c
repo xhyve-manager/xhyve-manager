@@ -71,25 +71,24 @@ void load_config(xhyve_virtual_machine_t *machine, const char *config_path) {
 
 void parse_args(const char *command, const char *param, xhyve_virtual_machine_t *machine) {
   machine = malloc(sizeof(xhyve_virtual_machine_t));
-  if (strcmp(command, "info") == 0) {
+  if (command && strcmp(command, "info") == 0) {
     load_config(machine, param);
     print_machine(machine);
   } else {
     print_usage();
-    exit(EXIT_FAILURE);
   }
 }
 
-void print_usage(void) {
+int print_usage(void) {
   fprintf(stderr, "Usage: xhyve-manager [-np <machine name or path>] <command>\n");
   fprintf(stderr, "\t-n: specify name of machine in XHYVMS directory\n");
   fprintf(stderr, "\t-p: specify path to xhyvm\n");
+  exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv) {
   if (argc < 2) {
     print_usage();
-    exit(EXIT_FAILURE);
   }
 
   int opt;
@@ -111,14 +110,12 @@ int main(int argc, char **argv) {
       break;
     default:
       print_usage();
-      exit(EXIT_FAILURE);
     }
   }
 
   if (name || path) {
     if (name && path) {
       print_usage();
-      exit(EXIT_FAILURE);
     }
 
     param = get_config_path(name, path);
@@ -127,7 +124,6 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   } else {
     print_usage();
-    exit(EXIT_FAILURE);
   }
 }
 
