@@ -1,0 +1,9 @@
+// CFG(section, name, default)
+
+CFG(machine, type, "linux")
+
+CFG(options, memory, "1G")
+CFG(options, cpus, "1")
+
+#undef CFG
+

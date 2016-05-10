@@ -12,9 +12,8 @@
 #define __XHYVEMANAGER_H__
 
 typedef struct xhyve_virtual_machine {
-  char *type;
-  char *memory;
-  char *cpus;
+  #define CFG(s, n, default) char *s##_##n;
+  #include <xhyve-manager/config.def> 
 } xhyve_virtual_machine_t;
 
 void print_machine(xhyve_virtual_machine_t *machine);

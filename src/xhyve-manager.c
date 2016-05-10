@@ -25,27 +25,22 @@
 #include <xhyve-manager/xhyve-manager.h>
 #include <ini/ini.h>
 
-static int handler(void* machine, const char* section, const char* key,
+static int handler(void* machine, const char* section, const char* name,
                    const char* value)
 {
   xhyve_virtual_machine_t *pconfig = (xhyve_virtual_machine_t *)machine;
 
-#define MATCH(s, k) strcmp(section, s) == 0 && strcmp(key, k) == 0
-  if (MATCH("machine", "type")) {
-    pconfig->type = strdup(value);
-  } else if (MATCH("options", "memory")) {
-    pconfig->memory = strdup(value);
-  } else if (MATCH("options", "cpus")) {
-    pconfig->cpus = strdup(value);
-  } else {
-    return 0;
-  }
+  if (0) ;
+  #define CFG(s, n, default) else if (strcmp(section, #s)==0 && \
+    strcmp(name, #n)==0) pconfig->s##_##n = strdup(value);
+  #include <xhyve-manager/config.def>
 
   return 1;
 }
 
 void print_machine(xhyve_virtual_machine_t *machine) {
-  fprintf(stdout, "[type] %s\n[memory] %s\n[cpus] %s\n", machine->type, machine->memory, machine->cpus);
+  #define CFG(s, n, default) printf("[%s_%s] = %s\n", #s, #n, machine->s##_##n);
+  #include <xhyve-manager/config.def> 
 }
 
 char *get_config_path(const char *name, const char *path) {
