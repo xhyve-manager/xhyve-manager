@@ -8,9 +8,16 @@
  *
  **/
 
-#ifndef __XHYVECTL_H__
-#define __XHYVECTL_H__
+#ifndef __XHYVEMANAGER_H__
+#define __XHYVEMANAGER_H__
 
+typedef struct xhyve_virtual_machine {
+  char *type;
+  char *memory;
+  char *cpus;
+} xhyve_virtual_machine_t;
+
+void load_config(xhyve_virtual_machine_t *machine, char *path);
 void print_usage(char **argv);
 
 #endif

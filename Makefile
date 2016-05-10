@@ -8,8 +8,11 @@ endif
 
 include config.mk
 
+TARGET = xhyve-manager
+XHYVE_EXEC = build/$(TARGET)
+
 XHYVE_SRC := \
-  src/xhyvectl.c
+  src/$(TARGET).c
 
 INI_SRC := \
 	src/ini/ini.c
@@ -24,7 +27,6 @@ INC := -Iinclude
 
 CFLAGS += -DVERSION=\"$(GIT_VERSION)\"
 
-XHYVE_EXEC = build/xhyvectl
 
 INSTALL = /usr/bin/install
 
