@@ -6,6 +6,10 @@ But do I care? No.
 
 Why? I need to practice my C-fu, dagnabbit.
 
+** What's working
++ default virtual machine directory at ~/usr/local/Library/xhyve/machines~.
++ prints virtual machine info: ~xhyve-manager -n CentOS info~.
++ starts virtual machine: ~xhyve-manager -n CentOS start~
 ** Planned Features
 + Manage lifecycle of virtual machines (inspired by bhyvectl on FreeBSD)
 + Build and package virtual machines
@@ -19,7 +23,7 @@ Why? I need to practice my C-fu, dagnabbit.
 *** Graphical Session 
 + need to connect with a VNC viewer
 ** Roadmap
-*** TODO Add placeholders for commandline options
+*** TODO Commandline options
 + [ ] ~list~ list virtual machines
 + [ ] ~create <name>~ create a new virtual machine
 + [ ] ~delete <name>~ delete virtual machine
@@ -28,11 +32,10 @@ Why? I need to practice my C-fu, dagnabbit.
 **** Create a ~config.ini~ from prompting the user for these values:
 + [X] memory
 + [X] cpus
-+ [ ] networking
-+ [ ] storage
-+ [ ] type: linux or bsd so we know which initialization to load
++ [X] networking
++ [X] storage
++ [X] type: linux or bsd so we know which initialization to load
 **** Storage
 + [ ] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
-+ [ ] HDD: specify where this is on disk; create if it doesn't exist or just have user specify it.
-*** Create run script 
++ [X] HDD: specify where this is on disk; create if it doesn't exist or just have user specify it.
 *** TODO At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.

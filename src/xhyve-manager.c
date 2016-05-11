@@ -148,7 +148,7 @@ int print_usage(void)
   fprintf(stderr, "\t-p: specify path to xhyvm\n");
   fprintf(stderr, "\tcommands:\n");
   fprintf(stderr, "\t  info: show info about machine\n");
-  fprintf(stderr, "\t  create: create a new machine\n");
+  fprintf(stderr, "\t  start: start a vm (needs root)\n");
   exit(EXIT_FAILURE);
 }
 
