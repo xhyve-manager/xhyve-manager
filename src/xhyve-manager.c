@@ -88,6 +88,7 @@ int print_usage(void) {
   exit(EXIT_FAILURE);
 }
 
+
 int main(int argc, char **argv) {
   if (argc < 2) {
     print_usage();

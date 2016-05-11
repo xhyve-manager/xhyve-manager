@@ -80,5 +80,4 @@ test-info:
 	@echo "\033[33m\n--->\t$(TEST_INFO_1)\n\033[0m" && $(TEST_INFO_1)
 
 test-create:
-	@echo $(XHYVE_EXEC) -n $(UUID) create
 	@$(XHYVE_EXEC) -n $(UUID) create
