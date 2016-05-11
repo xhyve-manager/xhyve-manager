@@ -38,8 +38,13 @@ static int handler(void* machine, const char* section, const char* name,
   return 1;
 }
 
+void print_command(xhyve_virtual_machine_t *machine) {
+  #define CFG(s, n, default) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
+  #include <xhyve-manager/config.def> 
+}
+
 void print_machine(xhyve_virtual_machine_t *machine) {
-  #define CFG(s, n, default) printf("[%s_%s] = %s\n", #s, #n, machine->s##_##n);
+  #define CFG(s, n, default) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
   #include <xhyve-manager/config.def> 
 }
 
@@ -89,6 +94,7 @@ int print_usage(void) {
   exit(EXIT_FAILURE);
 }
 
+// <slot,driver,configinfo> PCI slot config
 
 int main(int argc, char **argv) {
   if (argc < 2) {
