@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <pwd.h>
 #include <assert.h>
+#include <uuid/uuid.h>
 
 // xhyve
 #include <xhyve/xhyve.h>
@@ -64,6 +65,8 @@ int start_machine(xhyve_virtual_machine_t *machine)
 
   char *args[] = {
     "xhyve",
+    "-U",
+    machine->machine_uuid,
     "-m",
     machine->memory_size,
     "-c",
@@ -149,6 +152,7 @@ int print_usage(void)
   fprintf(stderr, "\tcommands:\n");
   fprintf(stderr, "\t  info: show info about machine\n");
   fprintf(stderr, "\t  start: start a vm (needs root)\n");
+  fprintf(stderr, "\t  create: create a VM\n");
   exit(EXIT_FAILURE);
 }
 
@@ -181,9 +185,6 @@ void form_config_string(char **ret, const char* fmt, ...)
 int main(int argc, char **argv)
 {
   if (argc < 2) {
-    char *lol = NULL;
-    form_config_string(&lol, "ss", "Hello", "it's me");
-    printf("%s", lol);
     print_usage();
   }
 
