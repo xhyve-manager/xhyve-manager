@@ -92,7 +92,7 @@ int print_usage(void) {
 
 // <slot,driver,configinfo> PCI slot config
 
-void simple_printf(const char* fmt, ...)
+void simple_asprintf(char **ret, const char* fmt, ...)
 {
   // From http://en.cppreference.com/w/c/variadic
   va_list args;
@@ -105,9 +105,9 @@ void simple_printf(const char* fmt, ...)
 
     if (*fmt == 's') {
       char *s = va_arg(args, char *);
-      printf("%s", s);
+      asprintf(ret, "%s%s", *ret, s);
       if (*next != '\0')
-        printf(",");
+        asprintf(ret, "%s,", *ret);
     }
     ++fmt;
   }
@@ -117,10 +117,11 @@ void simple_printf(const char* fmt, ...)
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    simple_printf("ss", "Hello", "it's me");
+    char *lol = NULL;
+    simple_asprintf(&lol, "ss", "Hello", "it's me");
+    printf("%s", lol);
     print_usage();
   }
-
 
   int opt;
   char *command = NULL;

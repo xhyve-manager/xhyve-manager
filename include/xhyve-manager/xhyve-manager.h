@@ -22,6 +22,6 @@ char *get_config_path(const char *name, const char *path);
 void load_config(xhyve_virtual_machine_t *machine, const char *config_path);
 void parse_args(const char *command, const char *param, xhyve_virtual_machine_t *machine);
 int print_usage(void);
-void simple_printf(const char* fmt, ...);
+void simple_asprintf(char **ret, const char* fmt, ...);
 
 #endif
