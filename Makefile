@@ -36,6 +36,10 @@ bindir = $(prefix)/bin
 builddir = $(CURDIR)/build
 
 
+TEST_INFO_0 = $(XHYVE_EXEC) -n Example info
+TEST_INFO_1 = $(XHYVE_EXEC) -p /usr/local/Library/xhyve/machines/Example.xhyvm info
+
+
 all: $(XHYVE_EXEC) | build
 
 .PHONY: clean all
@@ -65,6 +69,10 @@ $(XHYVE_EXEC): $(XHYVE_EXEC).sym
 clean:
 	@rm -rf build
 
-test: clean all
-	@echo "Testing -p XHYVMS_DIR/Example info" && $(XHYVE_EXEC) -p /usr/local/Library/xhyve/machines/Example.xhyvm info
-	@echo "Testing -n Example info" && $(XHYVE_EXEC) -n Example info
+test: clean all test-info
+	@echo "Tests done"
+
+test-info:
+	@echo "\033[33m\n--->\t$(TEST_INFO_0)\n\033[0m" && $(TEST_INFO_0)
+	@echo "\033[33m\n--->\t$(TEST_INFO_1)\n\033[0m" && $(TEST_INFO_1)
+

@@ -2,8 +2,16 @@
 
 CFG(machine, type, "linux")
 
-CFG(options, memory, "1G")
-CFG(options, cpus, "1")
+CFG(boot, options, "earlyprintk=serial console=ttyS0 acpi=off")
+CFG(memory, size, "1G")
+CFG(processor, cpus, "1")
+CFG(storage_devices, storage, "virtio-blk")
+CFG(storage_devices, internal, "storage/internal.hdd")
+CFG(storage_devices, external, "")
+CFG(networking, network, "virtio-net")
+CFG(pci, bridge_dev, "hostbridge")
+CFG(pci, lpc_dev, "lpc")
+CFG(lpc, link, "stdio")
 
 #undef CFG
 
