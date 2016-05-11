@@ -6,18 +6,27 @@ CFG(boot, kernel, "vmlinuz")
 CFG(boot, initrd, "initrd.img")
 CFG(boot, options, "earlyprintk=serial console=ttyS0 acpi=off")
 
-CFG(memory, size, "1G")
-
 CFG(processor, cpus, "1")
 
-CFG(storage, device, "virtio-blk")
-CFG(storage, internal_vdisk, "internal.hdd")
-CFG(storage, external_vdisk, "")
+CFG(memory, size, "1G")
 
-CFG(networking, device, "virtio-net")
+CFG(bridge, slot, "0:0")
+CFG(bridge, driver, "hostbridge")
 
-CFG(pci, bridge, "hostbridge")
-CFG(lpc, device, "stdio")
+CFG(lpc, slot, "31")
+CFG(lpc, driver, "lpc")
+CFG(lpc, configinfo, "com1,stdio")
+
+CFG(internal_storage, slot, "4")
+CFG(internal_storage, driver, "virtio-blk")
+CFG(internal_storage, path, "/usr/local/Library/xhyve/vdisks/hdd.img")
+
+CFG(external_storage, slot, "3")
+CFG(external_storage, driver, "ahci-cd")
+CFG(external_storage, path, NULL)
+
+CFG(networking, slot, "2:0")
+CFG(networking, driver, "virtio-net")
 
 #undef CFG
 
