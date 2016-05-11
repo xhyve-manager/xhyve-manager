@@ -39,27 +39,6 @@ static int handler(void* machine, const char* section, const char* name,
   return 1;
 }
 
-void form_config_string(const char *fmt, ...) {
-  // http://en.cppreference.com/w/c/variadic
-  va_list args;
-  va_start(args, fmt);
-  while (*fmt != '\0') {
-    if (*fmt == 'd') {
-      int i = va_arg(args, int);
-      printf("%d\n", i);
-    } else if (*fmt == 'c') {
-      // note automatic conversion to integral type
-      int c = va_arg(args, int);
-      printf("%c\n", c);
-    } else if (*fmt == 'f') {
-      double d = va_arg(args, double);
-      printf("%f\n", d);
-    }
-    ++fmt;
-  }
-  va_end(args);
-}
-
 void print_config(xhyve_virtual_machine_t *machine) {
 #define CFG(s, n, default) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
 #include <xhyve-manager/config.def>
@@ -113,10 +92,39 @@ int print_usage(void) {
 
 // <slot,driver,configinfo> PCI slot config
 
+void simple_printf(const char* fmt, ...)
+{
+  // From http://en.cppreference.com/w/c/variadic
+  va_list args;
+  va_start(args, fmt);
+ 
+  while (*fmt != '\0') {
+    if (*fmt == 'd') {
+      int i = va_arg(args, int);
+      printf("%d\n", i);
+    } else if (*fmt == 'c') {
+      // note automatic conversion to integral type
+      int c = va_arg(args, int);
+      printf("%c\n", c);
+    } else if (*fmt == 'f') {
+      double d = va_arg(args, double);
+      printf("%f\n", d);
+    } else if (*fmt == 's') {
+      char *s = va_arg(args, char *);
+      printf("%s\n", s);
+    }
+    ++fmt;
+  }
+
+  va_end(args);
+}
+
 int main(int argc, char **argv) {
   if (argc < 2) {
+    simple_printf("dcffs", 3, 'a', 1.999, 42.5, "DOES THIS WORK");
     print_usage();
   }
+
 
   int opt;
   char *command = NULL;
