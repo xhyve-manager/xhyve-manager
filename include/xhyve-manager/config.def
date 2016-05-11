@@ -2,13 +2,20 @@
 
 CFG(machine, type, "linux")
 
+CFG(boot, kernel, "vmlinuz")
+CFG(boot, initrd, "initrd.img")
 CFG(boot, options, "earlyprintk=serial console=ttyS0 acpi=off")
+
 CFG(memory, size, "1G")
+
 CFG(processor, cpus, "1")
+
 CFG(storage, device, "virtio-blk")
-CFG(storage, internal_vdisk, "storage/internal.hdd")
+CFG(storage, internal_vdisk, "internal.hdd")
 CFG(storage, external_vdisk, "")
+
 CFG(networking, device, "virtio-net")
+
 CFG(pci, bridge, "hostbridge")
 CFG(lpc, device, "stdio")
 
