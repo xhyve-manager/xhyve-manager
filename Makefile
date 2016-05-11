@@ -9,16 +9,78 @@ endif
 include config.mk
 
 TARGET = xhyve-manager
-XHYVE_EXEC = build/$(TARGET)
+XHYVEMANAGER_EXEC = build/$(TARGET)
+
+VMM_SRC := \
+	src/vmm/x86.c \
+	src/vmm/vmm.c \
+	src/vmm/vmm_host.c \
+	src/vmm/vmm_mem.c \
+	src/vmm/vmm_lapic.c \
+	src/vmm/vmm_instruction_emul.c \
+	src/vmm/vmm_ioport.c \
+	src/vmm/vmm_callout.c \
+	src/vmm/vmm_stat.c \
+	src/vmm/vmm_util.c \
+	src/vmm/vmm_api.c \
+	src/vmm/intel/vmx.c \
+	src/vmm/intel/vmx_msr.c \
+	src/vmm/intel/vmcs.c \
+	src/vmm/io/vatpic.c \
+	src/vmm/io/vatpit.c \
+	src/vmm/io/vhpet.c \
+	src/vmm/io/vioapic.c \
+	src/vmm/io/vlapic.c \
+	src/vmm/io/vpmtmr.c \
+	src/vmm/io/vrtc.c
 
 XHYVE_SRC := \
+	src/acpitbl.c \
+	src/atkbdc.c \
+	src/block_if.c \
+	src/consport.c \
+	src/dbgport.c \
+	src/inout.c \
+	src/ioapic.c \
+	src/md5c.c \
+	src/mem.c \
+	src/mevent.c \
+	src/mptbl.c \
+	src/pci_ahci.c \
+	src/pci_emul.c \
+	src/pci_hostbridge.c \
+	src/pci_irq.c \
+	src/pci_lpc.c \
+	src/pci_uart.c \
+	src/pci_virtio_block.c \
+	src/pci_virtio_net_tap.c \
+	src/pci_virtio_net_vmnet.c \
+	src/pci_virtio_rnd.c \
+	src/pm.c \
+	src/post.c \
+	src/rtc.c \
+	src/smbiostbl.c \
+	src/task_switch.c \
+	src/uart_emul.c \
+	src/xhyve.c \
+	src/virtio.c \
+	src/xmsr.c
+
+FIRMWARE_SRC := \
+	src/firmware/kexec.c \
+	src/firmware/fbsd.c
+
+XHYVEMANAGER_SRC := \
   src/$(TARGET).c
 
 INI_SRC := \
 	src/ini/ini.c
 
 SRC := \
+	$(VMM_SRC) \
 	$(XHYVE_SRC) \
+	$(FIRMWARE_SRC) \
+	$(XHYVEMANAGER_SRC) \
 	$(INI_SRC)
 
 OBJ := $(SRC:src/%.c=build/%.o)
@@ -37,7 +99,7 @@ builddir = $(CURDIR)/build
 
 
 
-all: $(XHYVE_EXEC) | build
+all: $(XHYVEMANAGER_EXEC) | build
 
 .PHONY: clean all
 .SUFFIXES:
@@ -52,15 +114,15 @@ build/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	$(VERBOSE) $(ENV) $(CC) $(CFLAGS) $(INC) $(DEF) -MMD -MT $@ -MF build/$*.d -o $@ -c $<
 
-$(XHYVE_EXEC).sym: $(OBJ)
+$(XHYVEMANAGER_EXEC).sym: $(OBJ)
 	@echo ld $(notdir $@)
-	$(VERBOSE) $(ENV) $(LD) $(LDFLAGS) -Xlinker $(XHYVE_EXEC).lto.o -o $@ $(OBJ)
-	@echo dsym $(notdir $(XHYVE_EXEC).dSYM)
-	$(VERBOSE) $(ENV) $(DSYM) $@ -o $(XHYVE_EXEC).dSYM
+	$(VERBOSE) $(ENV) $(LD) $(LDFLAGS) -Xlinker $(XHYVEMANAGER_EXEC).lto.o -o $@ $(OBJ)
+	@echo dsym $(notdir $(XHYVEMANAGER_EXEC).dSYM)
+	$(VERBOSE) $(ENV) $(DSYM) $@ -o $(XHYVEMANAGER_EXEC).dSYM
 
-$(XHYVE_EXEC): $(XHYVE_EXEC).sym
+$(XHYVEMANAGER_EXEC): $(XHYVEMANAGER_EXEC).sym
 	@echo strip $(notdir $@)
-	$(VERBOSE) $(ENV) $(STRIP) $(XHYVE_EXEC).sym -o $@
+	$(VERBOSE) $(ENV) $(STRIP) $(XHYVEMANAGER_EXEC).sym -o $@
 
 .PHONY: clean
 clean:
@@ -69,8 +131,8 @@ clean:
 
 UUIDGEN = /usr/bin/uuidgen
 UUID = `UUIDGEN`
-TEST_INFO_0 = $(XHYVE_EXEC) -n CentOS info
-TEST_INFO_1 = $(XHYVE_EXEC) -p /usr/local/Library/xhyve/machines/CentOS.xhyvm info
+TEST_INFO_0 = $(XHYVEMANAGER_EXEC) -n CentOS info
+TEST_INFO_1 = $(XHYVEMANAGER_EXEC) -p /usr/local/Library/xhyve/machines/CentOS.xhyvm info
 
 test: clean all test-info test-create
 	@echo "Tests done"
@@ -81,4 +143,4 @@ test-info:
 
 test-create:
 	@echo "\033[33m\n--->\tTest VM creation\n\033[0m"
-	@$(XHYVE_EXEC) -n $(UUID) create
+	@$(XHYVEMANAGER_EXEC) -n $(UUID) create
