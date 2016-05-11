@@ -97,21 +97,17 @@ void simple_printf(const char* fmt, ...)
   // From http://en.cppreference.com/w/c/variadic
   va_list args;
   va_start(args, fmt);
- 
+
+  const char *next;
+
   while (*fmt != '\0') {
-    if (*fmt == 'd') {
-      int i = va_arg(args, int);
-      printf("%d\n", i);
-    } else if (*fmt == 'c') {
-      // note automatic conversion to integral type
-      int c = va_arg(args, int);
-      printf("%c\n", c);
-    } else if (*fmt == 'f') {
-      double d = va_arg(args, double);
-      printf("%f\n", d);
-    } else if (*fmt == 's') {
+    next = fmt + 1;
+
+    if (*fmt == 's') {
       char *s = va_arg(args, char *);
-      printf("%s\n", s);
+      printf("%s", s);
+      if (*next != '\0')
+        printf(",");
     }
     ++fmt;
   }
@@ -121,7 +117,7 @@ void simple_printf(const char* fmt, ...)
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    simple_printf("dcffs", 3, 'a', 1.999, 42.5, "DOES THIS WORK");
+    simple_printf("ss", "Hello", "it's me");
     print_usage();
   }
 
