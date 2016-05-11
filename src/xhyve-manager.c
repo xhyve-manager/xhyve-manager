@@ -18,6 +18,9 @@
 #include <pwd.h>
 #include <assert.h>
 
+// xhyve
+#include <xhyve/xhyve.h>
+
 // Constants
 #define DEFAULT_VM_DIR "/usr/local/Library/xhyve/machines"
 #define DEFAULT_VM_EXT "xhyvm"

@@ -134,7 +134,7 @@ UUID = `UUIDGEN`
 TEST_INFO_0 = $(XHYVEMANAGER_EXEC) -n CentOS info
 TEST_INFO_1 = $(XHYVEMANAGER_EXEC) -p /usr/local/Library/xhyve/machines/CentOS.xhyvm info
 
-test: clean all test-info test-create
+test: all test-info test-create
 	@echo "Tests done"
 
 test-info:
