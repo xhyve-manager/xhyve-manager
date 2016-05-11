@@ -1,5 +1,6 @@
 // CFG(section, name, default)
 
+CFG(machine, name, "default")
 CFG(machine, type, "linux")
 
 CFG(boot, kernel, "vmlinuz")

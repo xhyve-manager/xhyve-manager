@@ -42,7 +42,60 @@ static int handler(void* machine, const char* section, const char* name,
   return 1;
 }
 
-void print_config(xhyve_virtual_machine_t *machine)
+int start_machine(xhyve_virtual_machine_t *machine)
+{
+  char *pci_dev = NULL;
+  char *pci_lpc = NULL;
+  char *lpc_dev = NULL;
+  char *net = NULL;
+  char *img_hdd = NULL;
+  char *firmware = NULL;
+
+  form_config_string(&pci_dev, "ss", machine->bridge_slot, machine->bridge_driver);
+  form_config_string(&pci_lpc, "ss", machine->lpc_slot, machine->lpc_driver);
+  form_config_string(&lpc_dev, "s", machine->lpc_configinfo);
+  form_config_string(&net, "ss", machine->networking_slot, machine->networking_driver);
+  form_config_string(&img_hdd, "sss", machine->internal_storage_slot, machine->internal_storage_driver, machine->internal_storage_configinfo);
+
+  char *machine_path = NULL;
+  asprintf(&machine_path, "%s/%s.%s", DEFAULT_VM_DIR, machine->machine_name, DEFAULT_VM_EXT);
+  chdir(machine_path);
+  form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
+
+  char *args[] = {
+    "xhyve",
+    "-m",
+    machine->memory_size,
+    "-c",
+    machine->processor_cpus,
+    "-s",
+    pci_dev,
+    "-s",
+    pci_lpc,
+    "-l",
+    lpc_dev,
+    "-s",
+    net,
+    "-s",
+    img_hdd,
+    "-f",
+    firmware,
+    NULL
+  };
+
+  int argnum = 0;
+  char **ptr = NULL;
+  ptr = args;
+
+  while (*ptr) {
+    ++argnum;
+    ++ptr;
+  }
+
+  return xhyve_entrypoint(argnum, args);
+}
+
+void print_machine_info(xhyve_virtual_machine_t *machine)
 {
 #define CFG(s, n, default) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
 #include <xhyve-manager/config.def>
@@ -78,7 +131,7 @@ void parse_args(const char *command, const char *param, xhyve_virtual_machine_t 
     if (strcmp(command, "info") == 0) {
       machine = malloc(sizeof(xhyve_virtual_machine_t));
       load_config(machine, param);
-      print_config(machine);
+      print_machine_info(machine);
     } else if (strcmp(command, "create") == 0) {
       printf("Create %s\n", param);
     }
@@ -122,55 +175,6 @@ void form_config_string(char **ret, const char* fmt, ...)
   }
 
   va_end(args);
-}
-
-int start_machine(xhyve_virtual_machine_t *machine)
-{
-  char *pci_dev = NULL;
-  char *pci_lpc = NULL;
-  char *lpc_dev = NULL;
-  char *net = NULL;
-  char *img_hdd = NULL;
-  char *firmware = NULL;
-
-  form_config_string(&pci_dev, "ss", machine->bridge_slot, machine->bridge_driver);
-  form_config_string(&pci_lpc, "ss", machine->lpc_slot, machine->lpc_driver);
-  form_config_string(&lpc_dev, "s", machine->lpc_configinfo);
-  form_config_string(&net, "ss", machine->networking_slot, machine->networking_driver);
-  form_config_string(&img_hdd, "sss", machine->internal_storage_slot, machine->internal_storage_driver, machine->internal_storage_configinfo);
-  form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
-
-  char *args[] = {
-    "xhyve",
-    "-m",
-    machine->memory_size,
-    "-c",
-    machine->processor_cpus,
-    "-s",
-    pci_dev,
-    "-s",
-    pci_lpc,
-    "-l",
-    lpc_dev,
-    "-s",
-    net,
-    "-s",
-    img_hdd,
-    "-f",
-    firmware,
-    NULL
-  };
-
-  int argnum = 0;
-  char **ptr = NULL;
-  ptr = args;
-
-  while (*ptr) {
-    ++argnum;
-    ++ptr;
-  }
-
-  return xhyve_entrypoint(argnum, args);
 }
 
 int main(int argc, char **argv)

@@ -16,12 +16,12 @@ typedef struct xhyve_virtual_machine {
   #include <xhyve-manager/config.def> 
 } xhyve_virtual_machine_t;
 
-void print_config(xhyve_virtual_machine_t *machine);
+int start_machine(xhyve_virtual_machine_t *machine);
+void print_machine_info(xhyve_virtual_machine_t *machine);
 char *get_config_path(const char *name, const char *path);
 void load_config(xhyve_virtual_machine_t *machine, const char *config_path);
 void parse_args(const char *command, const char *param, xhyve_virtual_machine_t *machine);
 int print_usage(void);
 void form_config_string(char **ret, const char* fmt, ...);
-int start_machine(xhyve_virtual_machine_t *machine);
 
 #endif
