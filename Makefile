@@ -69,8 +69,8 @@ clean:
 
 UUIDGEN = /usr/bin/uuidgen
 UUID = `UUIDGEN`
-TEST_INFO_0 = $(XHYVE_EXEC) -n Example info
-TEST_INFO_1 = $(XHYVE_EXEC) -p /usr/local/Library/xhyve/machines/Example.xhyvm info
+TEST_INFO_0 = $(XHYVE_EXEC) -n CentOS info
+TEST_INFO_1 = $(XHYVE_EXEC) -p /usr/local/Library/xhyve/machines/CentOS.xhyvm info
 
 test: clean all test-info test-create
 	@echo "Tests done"
@@ -80,4 +80,5 @@ test-info:
 	@echo "\033[33m\n--->\t$(TEST_INFO_1)\n\033[0m" && $(TEST_INFO_1)
 
 test-create:
+	@echo "\033[33m\n--->\tTest VM creation\n\033[0m"
 	@$(XHYVE_EXEC) -n $(UUID) create
