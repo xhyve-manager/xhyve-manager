@@ -1,4 +1,11 @@
 * xhyve-manager
+
+Is this superfluous? Probably.
+
+But do I care? No.
+
+Why? I need to practice my C-fu, dagnabbit.
+
 ** Planned Features
 + Manage lifecycle of virtual machines (inspired by bhyvectl on FreeBSD)
 + Build and package virtual machines
