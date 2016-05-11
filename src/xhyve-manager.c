@@ -98,6 +98,7 @@ void simple_asprintf(char **ret, const char* fmt, ...)
   va_list args;
   va_start(args, fmt);
 
+  asprintf(ret, "%s", "");
   const char *next;
 
   while (*fmt != '\0') {
