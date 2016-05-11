@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <pwd.h>
@@ -31,21 +32,37 @@ static int handler(void* machine, const char* section, const char* name,
   xhyve_virtual_machine_t *pconfig = (xhyve_virtual_machine_t *)machine;
 
   if (0) ;
-  #define CFG(s, n, default) else if (strcmp(section, #s)==0 && \
-    strcmp(name, #n)==0) pconfig->s##_##n = strdup(value);
-  #include <xhyve-manager/config.def>
+#define CFG(s, n, default) else if (strcmp(section, #s)==0 && \
+                                    strcmp(name, #n)==0) pconfig->s##_##n = strdup(value);
+#include <xhyve-manager/config.def>
 
   return 1;
 }
 
-void print_command(xhyve_virtual_machine_t *machine) {
-  #define CFG(s, n, default) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
-  #include <xhyve-manager/config.def> 
+void form_config_string(const char *fmt, ...) {
+  // http://en.cppreference.com/w/c/variadic
+  va_list args;
+  va_start(args, fmt);
+  while (*fmt != '\0') {
+    if (*fmt == 'd') {
+      int i = va_arg(args, int);
+      printf("%d\n", i);
+    } else if (*fmt == 'c') {
+      // note automatic conversion to integral type
+      int c = va_arg(args, int);
+      printf("%c\n", c);
+    } else if (*fmt == 'f') {
+      double d = va_arg(args, double);
+      printf("%f\n", d);
+    }
+    ++fmt;
+  }
+  va_end(args);
 }
 
-void print_machine(xhyve_virtual_machine_t *machine) {
-  #define CFG(s, n, default) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
-  #include <xhyve-manager/config.def> 
+void print_config(xhyve_virtual_machine_t *machine) {
+#define CFG(s, n, default) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
+#include <xhyve-manager/config.def>
 }
 
 char *get_config_path(const char *name, const char *path) {
@@ -75,7 +92,7 @@ void parse_args(const char *command, const char *param, xhyve_virtual_machine_t 
     if (strcmp(command, "info") == 0) {
       machine = malloc(sizeof(xhyve_virtual_machine_t));
       load_config(machine, param);
-      print_machine(machine);
+      print_config(machine);
     } else if (strcmp(command, "create") == 0) {
       printf("Create %s\n", param);
     }
