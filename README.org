@@ -1,4 +1,4 @@
-* xhyvectl
+* xhyve-manager
 ** Planned Features
 + Manage lifecycle of virtual machines (inspired by bhyvectl on FreeBSD)
 + Build and package virtual machines

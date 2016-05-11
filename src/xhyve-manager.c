@@ -66,10 +66,14 @@ void load_config(xhyve_virtual_machine_t *machine, const char *config_path) {
 }
 
 void parse_args(const char *command, const char *param, xhyve_virtual_machine_t *machine) {
-  machine = malloc(sizeof(xhyve_virtual_machine_t));
-  if (command && strcmp(command, "info") == 0) {
-    load_config(machine, param);
-    print_machine(machine);
+  if (command) {
+    if (strcmp(command, "info") == 0) {
+      machine = malloc(sizeof(xhyve_virtual_machine_t));
+      load_config(machine, param);
+      print_machine(machine);
+    } else if (strcmp(command, "create") == 0) {
+      printf("Create %s\n", param);
+    }
   } else {
     print_usage();
   }
