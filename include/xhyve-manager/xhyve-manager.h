@@ -20,11 +20,11 @@ int start_machine(xhyve_virtual_machine_t *machine);
 
 // Helpers
 char *get_machine_path(const char *machine_name);
+char *get_config_path(const char *machine_name);
 const char *get_homedir(void);
 void print_machine_info(xhyve_virtual_machine_t *machine);
-char *get_config_path(const char *name, const char *path);
-void load_config(xhyve_virtual_machine_t *machine, const char *config_path);
-void parse_args(const char *command, const char *param, xhyve_virtual_machine_t *machine);
+void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name);
+void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param);
 int print_usage(void);
 void form_config_string(char **ret, const char* fmt, ...);
 

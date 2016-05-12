@@ -46,7 +46,7 @@ static int handler(void* machine, const char* section, const char* name,
 char *get_machine_path(const char *machine_name)
 {
   char *machine_path = NULL;
-  asprintf(&machine_path, "%s/%s.%s", DEFAULT_VM_DIR, machine_name, DEFAULT_VM_EXT);
+  asprintf(&machine_path, "%s/%s/%s.%s", get_homedir(), DEFAULT_VM_DIR, machine_name, DEFAULT_VM_EXT);
   return machine_path;
 }
 
@@ -112,40 +112,30 @@ void print_machine_info(xhyve_virtual_machine_t *machine)
 #include <xhyve-manager/config.def>
 }
 
-char *get_config_path(const char *name, const char *path)
+char *get_config_path(const char *machine_name)
 {
   char *config_path = NULL;
-  char *machine_path = NULL;
-
-  if (path) {
-    machine_path = strdup(path);
-  } else {
-    asprintf(&machine_path, "%s/%s/%s.%s", get_homedir(), DEFAULT_VM_DIR, name, DEFAULT_VM_EXT);
-  }
-
-  asprintf(&config_path, "%s/config.ini", machine_path);
-  free(machine_path);
-
+  asprintf(&config_path, "%s/config.ini", get_machine_path(machine_name));
   return config_path;
 }
 
-void load_config(xhyve_virtual_machine_t *machine, const char *config_path)
+void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name)
 {
-  if (ini_parse(config_path, handler, machine) < 0) {
-    fprintf(stderr, "Missing or invalid machine config at %s\n", config_path);
+  if (ini_parse(get_config_path(machine_name), handler, machine) < 0) {
+    fprintf(stderr, "Missing or invalid machine config at %s\n", get_config_path(machine_name));
     exit(EXIT_FAILURE);
   }
 }
 
-void parse_args(const char *command, const char *param, xhyve_virtual_machine_t *machine)
+void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
 {
-  if (command) {
+  if (command && param) {
     machine = malloc(sizeof(xhyve_virtual_machine_t));
-    load_config(machine, param);
+    load_machine_config(machine, param);
 
-    if (strcmp(command, "info") == 0) {
+    if (!strcmp(command, "info")) {
       print_machine_info(machine);
-    } else if (strcmp(command, "start") == 0) {
+    } else if (!strcmp(command, "start")) {
       start_machine(machine);
     }
   } else {
@@ -211,39 +201,12 @@ int main(int argc, char **argv)
     print_usage();
   }
 
-  int opt;
-  char *command = NULL;
-  char *name = NULL;
-  char *path = NULL;
-  char *param = NULL;
+  char *machine_name = argv[1];
+  char *command = argv[2];
   xhyve_virtual_machine_t *machine = NULL;
 
-  while ((opt = getopt(argc, argv, "n::p::")) != -1) {
-    switch (opt) {
-    case 'n':
-      name = optarg;
-      command = argv[optind];
-      break;
-    case 'p':
-      path = optarg;
-      command = argv[optind];
-      break;
-    default:
-      print_usage();
-    }
-  }
-
-  if (name || path) {
-    if (name && path) {
-      print_usage();
-    }
-
-    param = get_config_path(name, path);
-    parse_args(command, param, machine);
-
-    if (machine) free(machine);
-    if (param) free(param);
-
+  if (machine_name) {
+    parse_args(machine, command, machine_name);
     exit(EXIT_SUCCESS);
   } else {
     print_usage();

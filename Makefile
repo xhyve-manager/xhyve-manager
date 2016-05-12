@@ -129,18 +129,11 @@ clean:
 	@rm -rf build
 
 
-UUIDGEN = /usr/bin/uuidgen
-UUID = `UUIDGEN`
-TEST_INFO_0 = $(XHYVEMANAGER_EXEC) -n CentOS info
-TEST_INFO_1 = sudo $(XHYVEMANAGER_EXEC) -p /usr/local/Library/xhyve/machines/CentOS.xhyvm info
+TEST_INFO_0 = $(XHYVEMANAGER_EXEC) CentOS info
 
-test: all test-info test-create
+test: all test-info
 	@echo "Tests done"
 
 test-info:
 	@echo "\033[33m\n--->\t$(TEST_INFO_0)\n\033[0m" && $(TEST_INFO_0)
-	@echo "\033[33m\n--->\t$(TEST_INFO_1)\n\033[0m" && $(TEST_INFO_1)
 
-test-create:
-	@echo "\033[33m\n--->\tTest VM creation\n\033[0m"
-	@$(XHYVEMANAGER_EXEC) -n $(UUID) create
