@@ -56,6 +56,7 @@ int start_machine(xhyve_virtual_machine_t *machine)
   char *pci_lpc = NULL;
   char *lpc_dev = NULL;
   char *net = NULL;
+  char *img_cd = NULL;
   char *img_hdd = NULL;
   char *firmware = NULL;
 
@@ -63,7 +64,14 @@ int start_machine(xhyve_virtual_machine_t *machine)
   form_config_string(&pci_lpc, "ss", machine->lpc_slot, machine->lpc_driver);
   form_config_string(&lpc_dev, "s", machine->lpc_configinfo);
   form_config_string(&net, "ss", machine->networking_slot, machine->networking_driver);
-  form_config_string(&img_hdd, "sss", machine->internal_storage_slot, machine->internal_storage_driver, machine->internal_storage_configinfo);
+  form_config_string(&img_cd, "sss",
+                     machine->external_storage_slot,
+                     machine->external_storage_driver,
+                     machine->external_storage_configinfo);
+  form_config_string(&img_hdd, "sss",
+                     machine->internal_storage_slot,
+                     machine->internal_storage_driver,
+                     machine->internal_storage_configinfo);
 
   if (chdir(get_machine_path(machine->machine_name)) < 0)
     perror("chdir");
@@ -87,6 +95,8 @@ int start_machine(xhyve_virtual_machine_t *machine)
     lpc_dev,
     "-s",
     net,
+    "-s",
+    img_cd,
     "-s",
     img_hdd,
     "-f",
