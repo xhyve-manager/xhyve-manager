@@ -23,7 +23,7 @@
 #include <xhyve/xhyve.h>
 
 // Constants
-#define DEFAULT_VM_DIR "/usr/local/Library/xhyve/machines"
+#define DEFAULT_VM_DIR "xhyve VMs"
 #define DEFAULT_VM_EXT "xhyvm"
 
 // Local
@@ -182,28 +182,26 @@ void form_config_string(char **ret, const char* fmt, ...)
   va_end(args);
 }
 
-int main(int argc, char **argv)
+const char *get_homedir(void)
 {
-  if (argc < 2) {
-    print_usage();
-  }
-
   char *user = NULL;
-
   if (getuid() == 0) { // if root
-    printf("getenv(): %s\n", getenv("SUDO_USER"));
     user = getenv("SUDO_USER");
   } else {
-    printf("getenv(): %s\n", getenv("USER"));
     user = getenv("USER");
   }
 
-  char buffer[BUFSIZ];
-  struct passwd pwd, *result = NULL;
-  if (getpwnam_r(user, &pwd, buffer, BUFSIZ, &result) != 0 || !result)
-    abort();
+  struct passwd *pwd;
+  pwd = getpwnam(user);
+  return pwd->pw_dir;
+}
 
-  printf("%s\n", pwd.pw_dir);
+int main(int argc, char **argv)
+{
+  printf("HOMEDIR: %s\n", get_homedir());
+  if (argc < 2) {
+    print_usage();
+  }
 
   int opt;
   char *command = NULL;
