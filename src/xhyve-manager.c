@@ -155,7 +155,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
 
 int print_usage(void)
 {
-  fprintf(stderr, "Usage: xhyve-manager <machine-name> <command>\n");
+  fprintf(stderr, "Usage: xhyve-manager <command> <machine-name>\n");
   fprintf(stderr, "\tcommands:\n");
   fprintf(stderr, "\t  info: show info about machine\n");
   fprintf(stderr, "\t  start: start a vm (needs root)\n");
