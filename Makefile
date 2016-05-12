@@ -89,15 +89,12 @@ INC := -Iinclude
 
 CFLAGS += -DVERSION=\"$(GIT_VERSION)\"
 
-
 INSTALL = /usr/bin/install
 
 prefix = /usr/local
 binprefix =
 bindir = $(prefix)/bin
 builddir = $(CURDIR)/build
-
-
 
 all: $(XHYVEMANAGER_EXEC) | build
 
@@ -107,22 +104,22 @@ all: $(XHYVEMANAGER_EXEC) | build
 -include $(DEP)
 
 build:
-	mkdir -p $(builddir)
+	@mkdir -p $(builddir)
 
 build/%.o: src/%.c
-	echo cc $<
-	mkdir -p $(dir $)
-	$(VERBOSE) $(ENV) $(CC) $(CFLAGS) $(INC) $(DEF) -MMD -MT $ -MF build/$*.d -o $ -c $<
+	@echo cc $<
+	@mkdir -p $(dir $@)
+	$(VERBOSE) $(ENV) $(CC) $(CFLAGS) $(INC) $(DEF) -MMD -MT $@ -MF build/$*.d -o $@ -c $<
 
 $(XHYVEMANAGER_EXEC).sym: $(OBJ)
-	echo ld $(notdir $)
-	$(VERBOSE) $(ENV) $(LD) $(LDFLAGS) -Xlinker $(XHYVEMANAGER_EXEC).lto.o -o $ $(OBJ)
-	echo dsym $(notdir $(XHYVEMANAGER_EXEC).dSYM)
-	$(VERBOSE) $(ENV) $(DSYM) $ -o $(XHYVEMANAGER_EXEC).dSYM
+	@echo ld $(notdir $@)
+	$(VERBOSE) $(ENV) $(LD) $(LDFLAGS) -Xlinker $(XHYVEMANAGER_EXEC).lto.o -o $@ $(OBJ)
+	@echo dsym $(notdir $(XHYVEMANAGER_EXEC).dSYM)
+	$(VERBOSE) $(ENV) $(DSYM) $@ -o $(XHYVEMANAGER_EXEC).dSYM
 
 $(XHYVEMANAGER_EXEC): $(XHYVEMANAGER_EXEC).sym
-	echo strip $(notdir $)
-	$(VERBOSE) $(ENV) $(STRIP) $(XHYVEMANAGER_EXEC).sym -o $
+	@echo strip $(notdir $@)
+	$(VERBOSE) $(ENV) $(STRIP) $(XHYVEMANAGER_EXEC).sym -o $@
 
 .PHONY: install
 install: all
@@ -130,11 +127,10 @@ install: all
 
 .PHONY: uninstall
 uninstall:
-	rm $(bindir)/$(binprefix)/xhyve
+	rm $(bindir)/$(binprefix)/$(TARGET)
 
-.PHONY: clean
 clean:
-	rm -rf build
+	@rm -rf build
 
 test: all test-info
 	@echo "\nTests have been completed"
