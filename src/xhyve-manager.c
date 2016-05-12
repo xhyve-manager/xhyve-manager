@@ -209,8 +209,8 @@ int main(int argc, char **argv)
     print_usage();
   }
 
-  char *machine_name = argv[1];
-  char *command = argv[2];
+  char *command = argv[1];
+  char *machine_name = argv[2];
   xhyve_virtual_machine_t *machine = NULL;
 
   if (machine_name) {

@@ -124,6 +124,14 @@ $(XHYVEMANAGER_EXEC): $(XHYVEMANAGER_EXEC).sym
 	@echo strip $(notdir $@)
 	$(VERBOSE) $(ENV) $(STRIP) $(XHYVEMANAGER_EXEC).sym -o $@
 
+.PHONY: install
+install: all
+	$(INSTALL) -C $(XHYVEMANAGER_EXEC) $(bindir)/$(binprefix)/$(TARGET)
+
+.PHONY: uninstall
+uninstall:
+	rm $(bindir)/$(binprefix)/xhyve
+
 .PHONY: clean
 clean:
 	@rm -rf build
