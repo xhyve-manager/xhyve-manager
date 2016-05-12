@@ -188,6 +188,23 @@ int main(int argc, char **argv)
     print_usage();
   }
 
+  char *user = NULL;
+
+  if (getuid() == 0) { // if root
+    printf("getenv(): %s\n", getenv("SUDO_USER"));
+    user = getenv("SUDO_USER");
+  } else {
+    printf("getenv(): %s\n", getenv("USER"));
+    user = getenv("USER");
+  }
+
+  char buffer[BUFSIZ];
+  struct passwd pwd, *result = NULL;
+  if (getpwnam_r(user, &pwd, buffer, BUFSIZ, &result) != 0 || !result)
+    abort();
+
+  printf("%s\n", pwd.pw_dir);
+
   int opt;
   char *command = NULL;
   char *name = NULL;
