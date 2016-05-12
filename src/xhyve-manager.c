@@ -145,9 +145,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
 
 int print_usage(void)
 {
-  fprintf(stderr, "Usage: xhyve-manager [-np <machine name or path>] <command>\n");
-  fprintf(stderr, "\t-n: specify name of machine in XHYVMS directory\n");
-  fprintf(stderr, "\t-p: specify path to xhyvm\n");
+  fprintf(stderr, "Usage: xhyve-manager <machine-name> <command>\n");
   fprintf(stderr, "\tcommands:\n");
   fprintf(stderr, "\t  info: show info about machine\n");
   fprintf(stderr, "\t  start: start a vm (needs root)\n");
