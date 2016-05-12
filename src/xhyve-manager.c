@@ -112,7 +112,7 @@ char *get_config_path(const char *name, const char *path)
   if (path) {
     machine_path = strdup(path);
   } else {
-    asprintf(&machine_path, "%s/%s.%s", DEFAULT_VM_DIR, name, DEFAULT_VM_EXT);
+    asprintf(&machine_path, "%s/%s/%s.%s", get_homedir(), DEFAULT_VM_DIR, name, DEFAULT_VM_EXT);
   }
 
   asprintf(&config_path, "%s/config.ini", machine_path);
@@ -124,7 +124,8 @@ char *get_config_path(const char *name, const char *path)
 void load_config(xhyve_virtual_machine_t *machine, const char *config_path)
 {
   if (ini_parse(config_path, handler, machine) < 0) {
-    fprintf(stderr, "Cannot load machine\n");
+    fprintf(stderr, "Missing or invalid machine config at %s\n", config_path);
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -198,7 +199,6 @@ const char *get_homedir(void)
 
 int main(int argc, char **argv)
 {
-  printf("HOMEDIR: %s\n", get_homedir());
   if (argc < 2) {
     print_usage();
   }
