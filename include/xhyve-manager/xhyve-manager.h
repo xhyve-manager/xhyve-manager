@@ -19,6 +19,7 @@ typedef struct xhyve_virtual_machine {
 int start_machine(xhyve_virtual_machine_t *machine);
 
 // Helpers
+char *get_machine_path(const char *machine_name);
 const char *get_homedir(void);
 void print_machine_info(xhyve_virtual_machine_t *machine);
 char *get_config_path(const char *name, const char *path);

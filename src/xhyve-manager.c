@@ -43,6 +43,13 @@ static int handler(void* machine, const char* section, const char* name,
   return 1;
 }
 
+char *get_machine_path(const char *machine_name)
+{
+  char *machine_path = NULL;
+  asprintf(&machine_path, "%s/%s.%s", DEFAULT_VM_DIR, machine_name, DEFAULT_VM_EXT);
+  return machine_path;
+}
+
 int start_machine(xhyve_virtual_machine_t *machine)
 {
   char *pci_dev = NULL;
@@ -58,9 +65,10 @@ int start_machine(xhyve_virtual_machine_t *machine)
   form_config_string(&net, "ss", machine->networking_slot, machine->networking_driver);
   form_config_string(&img_hdd, "sss", machine->internal_storage_slot, machine->internal_storage_driver, machine->internal_storage_configinfo);
 
-  char *machine_path = NULL;
-  asprintf(&machine_path, "%s/%s.%s", DEFAULT_VM_DIR, machine->machine_name, DEFAULT_VM_EXT);
-  chdir(machine_path);
+  if (chdir(get_machine_path(machine->machine_name)) < 0)
+    perror("chdir");
+
+  chdir(get_machine_path(machine->machine_name));
   form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
 
   char *args[] = {
