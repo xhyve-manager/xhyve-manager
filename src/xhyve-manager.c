@@ -137,6 +137,11 @@ void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_n
   }
 }
 
+void edit_machine_config(xhyve_virtual_machine_t *machine)
+{
+  printf("This is where I'll edit the machine %s", machine->machine_name);
+}
+
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
 {
   if (command && param) {
@@ -147,6 +152,8 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
       print_machine_info(machine);
     } else if (!strcmp(command, "start")) {
       start_machine(machine);
+    } else if (!strcmp(command, "edit")) {
+      edit_machine_config(machine);
     }
   } else {
     print_usage();
@@ -157,9 +164,9 @@ int print_usage(void)
 {
   fprintf(stderr, "Usage: xhyve-manager <command> <machine-name>\n");
   fprintf(stderr, "\tcommands:\n");
-  fprintf(stderr, "\t  info: show info about machine\n");
-  fprintf(stderr, "\t  start: start a vm (needs root)\n");
-  fprintf(stderr, "\t  create: create a VM\n");
+  fprintf(stderr, "\t  info: show info about VM\n");
+  fprintf(stderr, "\t  start: start VM (needs root)\n");
+  fprintf(stderr, "\t  edit: edit the configuration for VM\n");
   exit(EXIT_FAILURE);
 }
 
