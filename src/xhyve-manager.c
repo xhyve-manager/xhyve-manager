@@ -22,7 +22,6 @@
 // Constants
 #define DEFAULT_VM_DIR "xhyve VMs"
 #define DEFAULT_VM_EXT "xhyvm"
-#define NAME_MAX_CHARS 256
 
 // Macros
 #define MATCH(s, n) strcmp(s, n) == 0
@@ -228,24 +227,34 @@ void edit_machine_config(xhyve_virtual_machine_t *machine)
 
 void create_machine(xhyve_virtual_machine_t *machine)
 {
-  char name[NAME_MAX_CHARS];
+  char name[BUFSIZ];
   printf("Who are you? ");
-  fgets(name,NAME_MAX_CHARS,stdin);
+  fgets(name,BUFSIZ,stdin);
   printf("Glad to meet you, %s.\n",name);
   if (machine) print_machine_info(machine);
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
 {
-  if (MATCH(command, "create") && !param) create_machine(machine);
-  else if (param) {
+  if (command && !param) {
+    if (MATCH(command, "create")) create_machine(machine);
+    else print_usage();
+  } else if (command && param) {
+    if (MATCH(command, "create")) print_usage();
+
     machine = malloc(sizeof(machine));
     initialize_machine_config(machine);
     load_machine_config(machine, param, 0);
 
     if (MATCH(command, "edit")) edit_machine_config(machine);
+
     if (MATCH(command, "info")) print_machine_info(machine);
-    if (MATCH(command, "start")) start_machine(machine);
+
+    if (MATCH(command, "start") && getuid() == 0) start_machine(machine);
+    else fprintf(stderr, "You need to be root to start a VM"); exit(EXIT_FAILURE);
+
+  } else {
+    print_usage();
   }
 }
 
