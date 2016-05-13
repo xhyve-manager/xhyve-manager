@@ -85,6 +85,8 @@ int start_machine(xhyve_virtual_machine_t *machine)
     "xhyve",
     "-U",
     machine->machine_uuid,
+    "-f",
+    firmware,
     "-m",
     machine->memory_size,
     "-c",
@@ -101,8 +103,6 @@ int start_machine(xhyve_virtual_machine_t *machine)
     img_cd,
     "-s",
     img_hdd,
-    "-f",
-    firmware,
     NULL
   };
 
