@@ -38,8 +38,8 @@ static int handler(void* machine, const char* section, const char* name,
   xhyve_virtual_machine_t *pconfig = (xhyve_virtual_machine_t *)machine;
 
   if (0) ;
-#define CFG(s, n, default) else if (strcmp(section, #s)==0 && \
-                                    strcmp(name, #n)==0) pconfig->s##_##n = strdup(value);
+#define CFG(s, n, default) else if (MATCH(section, #s) && \
+                                    MATCH(name, #n)) pconfig->s##_##n = strdup(value);
 #include <xhyve-manager/config.def>
 
   return 1;
