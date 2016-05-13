@@ -8,6 +8,8 @@ CFG(boot, kernel, "vmlinuz")
 CFG(boot, initrd, "initrd.gz")
 CFG(boot, options, "earlyprintk=serial console=ttyS0 acpi=off")
 
+CFG(acpi, enabled, "false")
+
 CFG(processor, cpus, "1")
 
 CFG(memory, size, "1G")
@@ -18,7 +20,8 @@ CFG(bridge, configinfo, NULL)
 
 CFG(lpc, slot, "31")
 CFG(lpc, driver, "lpc")
-CFG(lpc, configinfo, "com1,stdio")
+
+CFG(lpc_dev, config, "com1,stdio")
 
 CFG(internal_storage, slot, "4")
 CFG(internal_storage, driver, "virtio-blk")
