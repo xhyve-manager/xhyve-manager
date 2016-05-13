@@ -8,8 +8,9 @@ Why? I need to practice my C-fu, dagnabbit.
 
 ** What's working
 + default virtual machine directory at ~/usr/local/Library/xhyve/machines~.
-+ prints virtual machine info: ~xhyve-manager -n CentOS info~.
-+ starts virtual machine: ~xhyve-manager -n CentOS start~
++ prints virtual machine info: ~xhyve-manager info CentOS~.
++ starts virtual machine: ~sudo xhyve-manager start FreeBSD~
++ edits virtual machine config: ~xhyve-manager edit Ubuntu~
 ** Planned Features
 + Manage lifecycle of virtual machines (inspired by bhyvectl on FreeBSD)
 + Build and package virtual machines
@@ -26,16 +27,21 @@ Why? I need to practice my C-fu, dagnabbit.
 *** TODO Commandline options
 + [ ] ~list~ list virtual machines
 + [ ] ~create <name>~ create a new virtual machine
++ [X] ~edit<name>~ edit virtual machine configuration with external editor (for now).
 + [ ] ~delete <name>~ delete virtual machine
-+ [ ] ~start <name>~ start virtual machine. at some point start it in detached mode and do something like ~vagrant ssh~. Maybe ~xhyve login~.
-*** TODO Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
-**** Create a ~config.ini~ from prompting the user for these values:
-+ [X] memory
-+ [X] cpus
-+ [X] networking
-+ [X] storage
++ [ ] ~info <name>~ show info about the virtual machine
++ [X] ~start <name>~ start virtual machine.
+*** DONE Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
+CLOSED: [2016-05-13 Fri 14:47]
+**** Read ~config.ini~ that specify:
++ [X] memory size
++ [X] number of cpus 
++ [X] networking options
++ [X] storage: internal or external, and mount latter depending on whether ISO is specified 
 + [X] type: linux or bsd so we know which initialization to load
-**** Storage
-+ [ ] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
++ [X] acpi: enabled or not
+**** Storage: specify with ~edit~
++ [X] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
 + [X] HDD: specify where this is on disk; create if it doesn't exist or just have user specify it.
-*** TODO At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.
+*** DONE At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.
+CLOSED: [2016-05-13 Fri 14:47]
