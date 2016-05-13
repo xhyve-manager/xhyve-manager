@@ -106,7 +106,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   char *lpc_dev = NULL;
   char *networking = NULL;
   char *internal_storage = NULL;
-  char *external_storage = NULL;
+  char *external_storage = "";
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
   if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) \
