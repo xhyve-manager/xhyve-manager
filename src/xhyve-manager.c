@@ -245,7 +245,12 @@ void create_machine(xhyve_virtual_machine_t *machine)
   machine->machine_type = strdup(input);
 
   // Internal Storage
+  get_input(input, "internal_storage:");
+  machine->internal_storage_configinfo = strdup(input);
+
   // External Storage
+  get_input(input, "external_storage:");
+  machine->external_storage_configinfo = strdup(input);
 
   print_machine_info(machine);
 }
