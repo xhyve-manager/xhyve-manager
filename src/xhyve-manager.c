@@ -56,7 +56,7 @@ char *get_machine_path(const char *machine_name)
 
 void start_machine(xhyve_virtual_machine_t *machine)
 {
-  char *firmware = "-f ";
+  char *firmware = "-f kexec";
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n);
 #include <xhyve-manager/config.def>
 
