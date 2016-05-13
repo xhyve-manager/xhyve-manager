@@ -60,6 +60,7 @@ int start_machine(xhyve_virtual_machine_t *machine)
   char *img_hdd = "";
   char *firmware = "";
 
+  chdir(get_machine_path(machine->machine_name));
   form_config_string(&pci_dev, "ss", machine->bridge_slot, machine->bridge_driver);
   form_config_string(&pci_lpc, "ss", machine->lpc_slot, machine->lpc_driver);
   form_config_string(&lpc_dev, "s", machine->lpc_configinfo);
@@ -81,8 +82,14 @@ int start_machine(xhyve_virtual_machine_t *machine)
   if (chdir(get_machine_path(machine->machine_name)) < 0)
     perror("chdir");
 
-  chdir(get_machine_path(machine->machine_name));
-  form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
+  if (strcmp(machine->machine_type, "linux") == 0) {
+    form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
+  } else if (strcmp(machine->machine_type, "bsd") == 0){
+    form_config_string(&firmware, "ssss", "fbsd", "userboot.so", machine->boot_initrd, machine->boot_options);
+  } else {
+    fprintf(stderr, "Sorry, a %s OS is not supported. Did you mean 'linux' or 'bsd'?\n", machine->machine_type);
+    exit(EXIT_FAILURE);
+  }
 
   char *args[] = {
     "xhyve",
