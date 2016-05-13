@@ -53,7 +53,8 @@ char *get_machine_path(const char *machine_name)
 
 void start_machine(xhyve_virtual_machine_t *machine)
 {
-#define CFG(s, n, default) if (strcmp(#s, "machine") == 0) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
+#define MATCH(s, n) strcmp(s, n) == 0
+#define CFG(s, n, default) if (MATCH(#s, "machine")) printf("%s", machine->s##_##n);
 #include <xhyve-manager/config.def>
 }
 
