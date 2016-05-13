@@ -1,5 +1,11 @@
 * xhyve-manager
 
+https://asciinema.org/a/45565
+
+#+BEGIN_HTML
+<a href="https://asciinema.org/a/45565" target="_blank"><img src="https://asciinema.org/a/45565.png" /></a>
+#+END_HTML
+
 Is this superfluous? Probably.
 
 But do I care? No.
