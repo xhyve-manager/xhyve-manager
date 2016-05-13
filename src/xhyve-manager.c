@@ -85,6 +85,7 @@ int start_machine(xhyve_virtual_machine_t *machine)
     perror("chdir");
 
   if (strcmp(machine->machine_type, "linux") == 0) {
+    acpiflag = NULL;
     form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
   } else if (strcmp(machine->machine_type, "bsd") == 0) {
     acpiflag = "-A";
@@ -114,9 +115,9 @@ int start_machine(xhyve_virtual_machine_t *machine)
     net,
     "-s",
     img_hdd,
+    acpiflag,
     cdflag,
     img_cd,
-    acpiflag,
     NULL
   };
 
