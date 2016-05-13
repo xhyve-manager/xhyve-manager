@@ -148,6 +148,11 @@ char *get_config_path(const char *machine_name)
   return config_path;
 }
 
+void initialize_machine_config(xhyve_virtual_machine_t *machine) {
+#define CFG(s, n, default) machine->s##_##n = strdup(default);
+#include <xhyve-manager/config.def>
+}
+
 void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name)
 {
   if (ini_parse(get_config_path(machine_name), handler, machine) < 0) {
