@@ -236,12 +236,22 @@ static void get_input(char input[], char *message)
 void create_machine(xhyve_virtual_machine_t *machine)
 {
   initialize_machine_config(machine);
+  int valid = 0;
   char input[BUFSIZ];
 
   // Basic Machine Info
   get_input(input, "What would you like to name this machine?");
   machine->machine_name = strdup(input);
-  get_input(input, "Will this be a linux or bsd machine?");
+
+  while (!valid) {
+    get_input(input, "Will this be a linux or bsd machine?");
+
+    if (strcmp(input, "linux") == 0 || strcmp(input, "bsd") == 0) {
+      valid = 1;
+    } else {
+      fprintf(stdout, "I'm sorry, %s is not a valid machine type.\n", input);
+    }
+  }
   machine->machine_type = strdup(input);
 
   // Internal Storage
