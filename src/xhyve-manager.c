@@ -118,7 +118,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
     form_config_string(&networking, "ss", networking, machine->s##_##n); \
   if (MATCH(#s, "internal_storage") && !(MATCH(machine->s##_##n, "")))  \
     form_config_string(&internal_storage, "ss", internal_storage, machine->s##_##n); \
-  if (MATCH(#s, "external_storage") && !(MATCH(machine->s##_##n, "")))  \
+  if (MATCH(#s, "external_storage") && !(MATCH(machine->external_storage_configinfo, "")) && !(MATCH(machine->s##_##n, ""))) \
     form_config_string(&external_storage, "ss", external_storage, machine->s##_##n); \
 
 #include <xhyve-manager/config.def>
@@ -133,7 +133,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   printf("-l %s\n", lpc_dev);
   printf("-s %s\n", networking);
   printf("-s %s\n", internal_storage);
-  if (!(MATCH(machine->external_storage_configinfo, ""))) printf("-s %s\n", external_storage);
+  printf("-s %s\n", external_storage);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
