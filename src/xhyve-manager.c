@@ -56,7 +56,7 @@ int start_machine(xhyve_virtual_machine_t *machine)
   char *pci_lpc = "";
   char *lpc_dev = "";
   char *net = "";
-  char *img_cd = "";
+  char *img_cd = NULL; char *cdflag = NULL;
   char *img_hdd = "";
   char *firmware = "";
 
@@ -65,10 +65,13 @@ int start_machine(xhyve_virtual_machine_t *machine)
   form_config_string(&lpc_dev, "s", machine->lpc_configinfo);
   form_config_string(&net, "ss", machine->networking_slot, machine->networking_driver);
 
-  form_config_string(&img_cd, "sss",
-                      machine->external_storage_slot,
-                      machine->external_storage_driver,
-                      machine->external_storage_configinfo);
+  if (strcmp(machine->external_storage_configinfo, "") != 0) {
+    form_config_string(&img_cd, "sss",
+                       machine->external_storage_slot,
+                       machine->external_storage_driver,
+                       machine->external_storage_configinfo);
+    cdflag = "-s";
+  }
 
   form_config_string(&img_hdd, "sss",
                      machine->internal_storage_slot,
@@ -100,9 +103,9 @@ int start_machine(xhyve_virtual_machine_t *machine)
     "-s",
     net,
     "-s",
-    img_cd,
-    "-s",
     img_hdd,
+    cdflag,
+    img_cd,
     NULL
   };
 
