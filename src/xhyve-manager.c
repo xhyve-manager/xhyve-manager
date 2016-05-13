@@ -56,9 +56,11 @@ char *get_machine_path(const char *machine_name)
 
 void start_machine(xhyve_virtual_machine_t *machine)
 {
-#define CFG(s, n, default) if (MATCH(#s, "boot")) printf("boot: %s,", machine->s##_##n); \
-  if (MATCH(#s, "bridge")) printf("bridge: %s,", machine->s##_##n);
+  char *firmware = "-f ";
+#define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n);
 #include <xhyve-manager/config.def>
+
+  printf("%s", firmware);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
