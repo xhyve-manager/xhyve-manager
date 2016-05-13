@@ -2,7 +2,7 @@
 
 CFG(machine, name, "default")
 CFG(machine, type, "linux")
-CFG(machine, uuid, "UUID-STRING-HERE")
+CFG(machine, uuid, "")
 
 CFG(boot, kernel, "vmlinuz")
 CFG(boot, initrd, "initrd.gz")

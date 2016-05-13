@@ -225,18 +225,36 @@ void edit_machine_config(xhyve_virtual_machine_t *machine)
   }
 }
 
+static void get_input(char input[], char *message)
+{
+  fprintf(stdout, "%s\n", message);
+  fgets(input, BUFSIZ, stdin);
+  // http://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
+  input[strcspn(input, "\r\n")] = 0;
+}
+
 void create_machine(xhyve_virtual_machine_t *machine)
 {
-  char name[BUFSIZ];
-  printf("Who are you? ");
-  fgets(name,BUFSIZ,stdin);
-  printf("Glad to meet you, %s.\n",name);
-  if (machine) print_machine_info(machine);
+  initialize_machine_config(machine);
+  char input[BUFSIZ];
+
+  // Basic Machine Info
+  get_input(input, "machine_name:");
+  machine->machine_name = strdup(input);
+  get_input(input, "machine_type:");
+  machine->machine_type = strdup(input);
+
+  // Internal Storage
+  // External Storage
+
+  print_machine_info(machine);
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
 {
   if (command && !param) {
+    machine = malloc(sizeof(machine));
+    initialize_machine_config(machine);
     if (MATCH(command, "create")) create_machine(machine);
     else print_usage();
   } else if (command && param) {
