@@ -19,9 +19,6 @@
 #include <assert.h>
 #include <uuid/uuid.h>
 
-// xhyve
-#include <xhyve/xhyve.h>
-
 // Constants
 #define DEFAULT_VM_DIR "xhyve VMs"
 #define DEFAULT_VM_EXT "xhyvm"
