@@ -123,6 +123,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
 
 #include <xhyve-manager/config.def>
 
+  if (MATCH(machine->acpi_enabled, "true")) printf("-A\n");
   printf("-U %s\n", machine->machine_uuid);
   printf("-m %s\n", machine->memory_size);
   printf("-c %s\n", machine->processor_cpus);
@@ -132,7 +133,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   printf("-l %s\n", lpc_dev);
   printf("-s %s\n", networking);
   printf("-s %s\n", internal_storage);
-  printf("-s %s\n", external_storage);
+  if (!(MATCH(machine->external_storage_configinfo, ""))) printf("-s %s\n", external_storage);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
