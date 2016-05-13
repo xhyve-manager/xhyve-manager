@@ -54,9 +54,25 @@ char *get_machine_path(const char *machine_name)
   return machine_path;
 }
 
+static char *get_firmware_type(xhyve_virtual_machine_t *machine)
+{
+  char *firmware = NULL;
+  if (MATCH(machine->machine_type, "bsd"))
+    firmware = "fbsd";
+  else if (MATCH(machine->machine_type, "linux"))
+    firmware = "kexec";
+  else {
+    fprintf(stderr, "Supported machine types: linux, bsd\n");
+    exit(EXIT_FAILURE);
+  }
+
+  return firmware;
+}
+
 void start_machine(xhyve_virtual_machine_t *machine)
 {
-  char *firmware = "-f kexec";
+  char *firmware = get_firmware_type(machine);
+
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n);
 #include <xhyve-manager/config.def>
 
