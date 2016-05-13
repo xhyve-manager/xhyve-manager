@@ -239,19 +239,20 @@ void create_machine(xhyve_virtual_machine_t *machine)
   char input[BUFSIZ];
 
   // Basic Machine Info
-  get_input(input, "machine_name:");
+  get_input(input, "What would you like to name this machine?");
   machine->machine_name = strdup(input);
-  get_input(input, "machine_type:");
+  get_input(input, "Will this be a linux or bsd machine?");
   machine->machine_type = strdup(input);
 
   // Internal Storage
-  get_input(input, "internal_storage:");
+  get_input(input, "Type in the full path to the virtual disk:");
   machine->internal_storage_configinfo = strdup(input);
 
   // External Storage
-  get_input(input, "external_storage:");
+  get_input(input, "Is there an ISO you would like to mount? Type in the full path below:");
   machine->external_storage_configinfo = strdup(input);
 
+  fprintf(stdout, "Below will be the configuration:\n");
   print_machine_info(machine);
 }
 
