@@ -106,7 +106,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   char *lpc_dev = NULL;
   char *networking = NULL;
   char *internal_storage = NULL;
-  char *external_storage = "";
+  char *external_storage = NULL;
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
   if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) \
@@ -136,6 +136,19 @@ void start_machine(xhyve_virtual_machine_t *machine)
   printf("-s %s\n", networking);
   printf("-s %s\n", internal_storage);
   printf("-s %s\n", external_storage);
+
+  char *xhyve_args[] = {
+    firmware,
+    acpi,
+    bridge,
+    lpc,
+    lpc_dev,
+    networking,
+    internal_storage,
+    external_storage = "",
+  };
+
+  printf("%s %s", xhyve_args[0], xhyve_args[2]);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
