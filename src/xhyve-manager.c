@@ -72,11 +72,11 @@ static char *get_firmware_type(xhyve_virtual_machine_t *machine)
 void start_machine(xhyve_virtual_machine_t *machine)
 {
   char *firmware = get_firmware_type(machine);
-  char *bridge = "";
-  char *lpc = "";
-  char *lpc_dev = "";
-  char *networking = "";
-  char *internal_storage = "";
+  char *bridge = " ";
+  char *lpc = " ";
+  char *lpc_dev = " ";
+  char *networking = " ";
+  char *internal_storage = " ";
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
   if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) \
