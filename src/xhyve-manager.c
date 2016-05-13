@@ -30,6 +30,7 @@
 #include <xhyve-manager/xhyve-manager.h>
 #include <ini/ini.h>
 
+static char *program_exec;
 
 static int handler(void* machine, const char* section, const char* name,
                    const char* value)
@@ -233,7 +234,12 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
     if (!strcmp(command, "info")) {
       print_machine_info(machine);
     } else if (!strcmp(command, "start")) {
-      start_machine(machine);
+      if (getuid() != 0) {
+        fprintf(stderr, "%s start needs to be run as root\n", program_exec);
+        exit(EXIT_FAILURE);
+      } else {
+        start_machine(machine);
+      }
     } else if (!strcmp(command, "edit")) {
       edit_machine_config(machine);
     }
@@ -244,7 +250,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
 
 int print_usage(void)
 {
-  fprintf(stderr, "Usage: xhyve-manager <command> <machine-name>\n");
+  fprintf(stderr, "Usage: %s <command> <machine-name>\n", program_exec);
   fprintf(stderr, "\tcommands:\n");
   fprintf(stderr, "\t  info: show info about VM\n");
   fprintf(stderr, "\t  start: start VM (needs root)\n");
@@ -271,6 +277,7 @@ const char *get_homedir(void)
 
 int main(int argc, char **argv)
 {
+  program_exec = argv[0];
   if (argc < 2) {
     print_usage();
   }
