@@ -75,11 +75,11 @@ void start_machine(xhyve_virtual_machine_t *machine)
   char *bridge = "";
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
-  if (MATCH(#s, "bridge")) form_config_string(&bridge, "ss", bridge, machine->s##_##n);
+  if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) form_config_string(&bridge, "ss", bridge, machine->s##_##n);
 #include <xhyve-manager/config.def>
 
-  printf(" -f %s", firmware);
-  printf(" -s %s", bridge);
+  printf(" -f %s\n", firmware);
+  printf(" -s %s\n", bridge);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
@@ -162,6 +162,7 @@ int print_usage(void)
 
 void form_config_string(char **ret, const char* fmt, ...)
 {
+  int chrnum = 0;
   // From http://en.cppreference.com/w/c/variadic
   va_list args;
   va_start(args, fmt);
@@ -171,6 +172,7 @@ void form_config_string(char **ret, const char* fmt, ...)
 
   while (*fmt != '\0') {
     next = fmt + 1;
+    ++chrnum;
 
     if (*fmt == 's') {
       char *s = va_arg(args, char *);
