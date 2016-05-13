@@ -145,7 +145,23 @@ void edit_machine_config(xhyve_virtual_machine_t *machine)
     editor = "nano";
   }
 
-  fprintf(stdout, "Editing %s config with external editor: %s", machine->machine_name, editor);
+  fprintf(stdout, "\nEditing %s config with external editor: %s\n", machine->machine_name, editor);
+
+  pid_t child;
+  if ((child = fork()) == -1) {
+    perror("fork");
+  } else {
+    if (child > 0) {
+      int status;
+      waitpid(child, &status, 0);
+      if (WIFEXITED(status)) {
+        fprintf(stdout, "\nEdited configuration for %s machine\n", machine->machine_name);
+        print_machine_info(machine);
+      }
+    } else {
+      execlp(editor, editor, get_config_path(machine->machine_name), (const char *) NULL);
+    }
+  }
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
