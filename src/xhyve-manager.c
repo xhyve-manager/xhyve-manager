@@ -52,22 +52,24 @@ char *get_machine_path(const char *machine_name)
 
 int start_machine(xhyve_virtual_machine_t *machine)
 {
-  char *pci_dev = NULL;
-  char *pci_lpc = NULL;
-  char *lpc_dev = NULL;
-  char *net = NULL;
-  char *img_cd = NULL;
-  char *img_hdd = NULL;
-  char *firmware = NULL;
+  char *pci_dev = "";
+  char *pci_lpc = "";
+  char *lpc_dev = "";
+  char *net = "";
+  char *img_cd = "";
+  char *img_hdd = "";
+  char *firmware = "";
 
   form_config_string(&pci_dev, "ss", machine->bridge_slot, machine->bridge_driver);
   form_config_string(&pci_lpc, "ss", machine->lpc_slot, machine->lpc_driver);
   form_config_string(&lpc_dev, "s", machine->lpc_configinfo);
   form_config_string(&net, "ss", machine->networking_slot, machine->networking_driver);
+
   form_config_string(&img_cd, "sss",
-                     machine->external_storage_slot,
-                     machine->external_storage_driver,
-                     machine->external_storage_configinfo);
+                      machine->external_storage_slot,
+                      machine->external_storage_driver,
+                      machine->external_storage_configinfo);
+
   form_config_string(&img_hdd, "sss",
                      machine->internal_storage_slot,
                      machine->internal_storage_driver,
