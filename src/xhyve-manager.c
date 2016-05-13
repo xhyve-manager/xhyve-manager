@@ -234,6 +234,11 @@ static void get_input(char input[], char *message)
   fprintf(stdout, "\n\n");
 }
 
+void create_virtual_disk(int size)
+{
+  fprintf(stdout, "A %dGB disk will be made\n", size);
+}
+
 void create_machine(xhyve_virtual_machine_t *machine)
 {
   initialize_machine_config(machine);
@@ -257,13 +262,22 @@ void create_machine(xhyve_virtual_machine_t *machine)
   }
   machine->machine_type = strdup(input);
 
+  // Generate UUID
+  fprintf(stdout, "Generating a UUID\n");
+  uuid_t uuid;
+  uuid_generate(uuid);
+  uuid_string_t out;
+  uuid_unparse(uuid, out);
+  fprintf(stdout, "The UUID of the machine will be %s\n", out);
+
+
   // Internal Storage
   get_input(input, "Is there an existing virtual disk you would like to use? y/n");
   if (MATCH(input, "y")) {
     get_input(input, "Please type in the full path to the virtual disk: (ex. /Users/tris/VDisks/dauntless.img)");
   } else {
     get_input(input, "I can create a virtual disk for you! How much space should it use in GBs? (ex. 5 for 5GB)");
-    // dd if=/dev/zero of=vdisk0.img bs=1g count=<user-input>
+    create_virtual_disk(atoi(input));
   }
   machine->internal_storage_configinfo = strdup(input);
 
@@ -273,16 +287,14 @@ void create_machine(xhyve_virtual_machine_t *machine)
     get_input(input, "Please type in the full path to the ISO (ex. /Users/katniss/Downloads/ubuntu-16.10-your-mom.iso):");
     machine->external_storage_configinfo = strdup(input);
     if (MATCH(machine->machine_type, "linux")) {
-      fprintf(stdout, "Since this will be a linux machine, I will extract the kernel from the ISO\n");
+      fprintf(stdout, "Since this will be a linux machine, I will extract the kernel and initrd from the ISO\n");
       // extract boot stuff automatically here
     }
   }
 
   fprintf(stdout, "Below will be the configuration:\n");
   print_machine_info(machine);
-
-  get_input(input, "Is there anything you would like to edit? y/n");
-  if (MATCH(input, "y")) edit_machine_config(machine);
+  // Write config to disk
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
