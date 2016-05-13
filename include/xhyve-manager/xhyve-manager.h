@@ -28,6 +28,7 @@ char *get_config_path(const char *machine_name);
 const char *get_homedir(void);
 void initialize_machine_config(xhyve_virtual_machine_t *machine);
 void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name, int newFile);
+void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path);
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param);
 int print_usage(void);
 void form_config_string(char **ret, const char* fmt, ...);

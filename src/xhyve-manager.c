@@ -239,6 +239,13 @@ void create_virtual_disk(int size)
   fprintf(stdout, "A %dGB disk will be made\n", size);
 }
 
+void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
+{
+  fprintf(stdout, "This is where I'd write the config at %s. If i knew How.\n", config_path);
+  fprintf(stdout, "Below be the generated configuration, matey:\n");
+  print_machine_info(machine);
+}
+
 void create_machine(xhyve_virtual_machine_t *machine)
 {
   initialize_machine_config(machine);
@@ -268,8 +275,8 @@ void create_machine(xhyve_virtual_machine_t *machine)
   uuid_generate(uuid);
   uuid_string_t out;
   uuid_unparse(uuid, out);
-  fprintf(stdout, "The UUID of the machine will be %s\n", out);
-
+  machine->machine_uuid = strdup(out);
+  fprintf(stdout, "The UUID of the machine will be %s\n", machine->machine_uuid);
 
   // Internal Storage
   get_input(input, "Is there an existing virtual disk you would like to use? y/n");
@@ -288,13 +295,17 @@ void create_machine(xhyve_virtual_machine_t *machine)
     machine->external_storage_configinfo = strdup(input);
     if (MATCH(machine->machine_type, "linux")) {
       fprintf(stdout, "Since this will be a linux machine, I will extract the kernel and initrd from the ISO\n");
-      // extract boot stuff automatically here
+      // TODO extract boot stuff automatically here
     }
   }
 
-  fprintf(stdout, "Below will be the configuration:\n");
-  print_machine_info(machine);
-  // Write config to disk
+  // TODO tmp files, dumbass
+  if (mkdir(get_machine_path(machine->machine_name), 0755) == -1) perror("mkdir");
+  char *config_path = get_config_path(machine->machine_name);
+  // TODO
+  write_machine_config(machine, config_path);
+
+  
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
