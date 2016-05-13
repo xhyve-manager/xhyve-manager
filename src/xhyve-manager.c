@@ -227,10 +227,11 @@ void edit_machine_config(xhyve_virtual_machine_t *machine)
 
 static void get_input(char input[], char *message)
 {
-  fprintf(stdout, "%s\n", message);
+  fprintf(stdout, "%s: ", message);
   fgets(input, BUFSIZ, stdin);
   // http://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
   input[strcspn(input, "\r\n")] = 0;
+  fprintf(stdout, "\n\n");
 }
 
 void create_machine(xhyve_virtual_machine_t *machine)
@@ -255,11 +256,11 @@ void create_machine(xhyve_virtual_machine_t *machine)
   machine->machine_type = strdup(input);
 
   // Internal Storage
-  get_input(input, "Type in the full path to the virtual disk:");
+  get_input(input, "Type in the full path to the virtual disk");
   machine->internal_storage_configinfo = strdup(input);
 
   // External Storage
-  get_input(input, "Is there an ISO you would like to mount? Type in the full path below:");
+  get_input(input, "Is there an ISO you would like to mount? Type in the full path below");
   machine->external_storage_configinfo = strdup(input);
 
   fprintf(stdout, "Below will be the configuration:\n");
