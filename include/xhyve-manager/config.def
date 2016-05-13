@@ -16,7 +16,7 @@ CFG(memory, size, "1G")
 
 CFG(bridge, slot, "0:0")
 CFG(bridge, driver, "hostbridge")
-CFG(bridge, configinfo, NULL)
+CFG(bridge, configinfo, "")
 
 CFG(lpc, slot, "31")
 CFG(lpc, driver, "lpc")
@@ -29,12 +29,12 @@ CFG(internal_storage, configinfo, "/usr/local/Library/xhyve/vdisks/hdd.img")
 
 CFG(external_storage, slot, "3")
 CFG(external_storage, driver, "ahci-cd")
-CFG(external_storage, configinfo, NULL)
+CFG(external_storage, configinfo, "")
 
 
 CFG(networking, slot, "2:0")
 CFG(networking, driver, "virtio-net")
-CFG(networking, configinfo, NULL)
+CFG(networking, configinfo, "")
 
 #undef CFG
 

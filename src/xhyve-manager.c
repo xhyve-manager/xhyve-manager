@@ -69,14 +69,40 @@ static char *get_firmware_type(xhyve_virtual_machine_t *machine)
   return firmware;
 }
 
+void form_config_string(char **ret, const char* fmt, ...)
+{
+  // From http://en.cppreference.com/w/c/variadic
+  va_list args;
+  va_start(args, fmt);
+  asprintf(ret, "%s", "");
+
+  const char *next;
+
+  while (*fmt != '\0') {
+    next = fmt + 1;
+
+    if (*fmt == 's') {
+      char *s = va_arg(args, char *);
+      asprintf(ret, "%s%s", *ret, s);
+      if (!(MATCH(*ret, "")) && *next != '\0') {
+        asprintf(ret, "%s,", *ret);
+      }
+    }
+    ++fmt;
+  }
+
+  va_end(args);
+}
+
 void start_machine(xhyve_virtual_machine_t *machine)
 {
   char *firmware = get_firmware_type(machine);
-  char *bridge = " ";
-  char *lpc = " ";
-  char *lpc_dev = " ";
-  char *networking = " ";
-  char *internal_storage = " ";
+  char *bridge = "";
+  char *lpc = "";
+  char *lpc_dev = "";
+  char *networking = "";
+  char *internal_storage = "";
+  char *external_storage = "";
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
   if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) \
@@ -89,6 +115,8 @@ void start_machine(xhyve_virtual_machine_t *machine)
     form_config_string(&networking, "ss", networking, machine->s##_##n); \
   if (MATCH(#s, "internal_storage") && !(MATCH(machine->s##_##n, "")))  \
     form_config_string(&internal_storage, "ss", internal_storage, machine->s##_##n); \
+  if (MATCH(#s, "external_storage") && !(MATCH(machine->s##_##n, "")))  \
+    form_config_string(&external_storage, "ss", external_storage, machine->s##_##n); \
 
 #include <xhyve-manager/config.def>
 
@@ -101,6 +129,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   printf("-l %s\n", lpc_dev);
   printf("-s %s\n", networking);
   printf("-s %s\n", internal_storage);
+  printf("-s %s\n", external_storage);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
@@ -181,31 +210,6 @@ int print_usage(void)
 
 // <slot,driver,configinfo> PCI slot config
 
-void form_config_string(char **ret, const char* fmt, ...)
-{
-  int chrnum = 0;
-  // From http://en.cppreference.com/w/c/variadic
-  va_list args;
-  va_start(args, fmt);
-
-  asprintf(ret, "%s", "");
-  const char *next;
-
-  while (*fmt != '\0') {
-    next = fmt + 1;
-    ++chrnum;
-
-    if (*fmt == 's') {
-      char *s = va_arg(args, char *);
-      asprintf(ret, "%s%s", *ret, s);
-      if (*next != '\0')
-        asprintf(ret, "%s,", *ret);
-    }
-    ++fmt;
-  }
-
-  va_end(args);
-}
 
 const char *get_homedir(void)
 {
