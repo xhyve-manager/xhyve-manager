@@ -75,6 +75,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   char *bridge = "";
   char *lpc = "";
   char *lpc_dev = "";
+  char *networking = "";
   char *internal_storage = "";
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
@@ -84,15 +85,21 @@ void start_machine(xhyve_virtual_machine_t *machine)
     form_config_string(&lpc, "ss", lpc, machine->s##_##n); \
   if (MATCH(#s, "lpc_dev") && !(MATCH(machine->s##_##n, "")))               \
     form_config_string(&lpc_dev, "ss", lpc_dev, machine->s##_##n); \
-  if (MATCH(#s, "internal_storage") && !(MATCH(machine->s##_##n, ""))) \
+  if (MATCH(#s, "networking") && !(MATCH(machine->s##_##n, ""))) \
+    form_config_string(&networking, "ss", networking, machine->s##_##n); \
+  if (MATCH(#s, "internal_storage") && !(MATCH(machine->s##_##n, "")))  \
     form_config_string(&internal_storage, "ss", internal_storage, machine->s##_##n); \
 
 #include <xhyve-manager/config.def>
 
+  printf("-U %s\n", machine->machine_uuid);
+  printf("-m %s\n", machine->memory_size);
+  printf("-c %s\n", machine->processor_cpus);
   printf("-f %s\n", firmware);
   printf("-s %s\n", bridge);
   printf("-s %s\n", lpc);
   printf("-l %s\n", lpc_dev);
+  printf("-s %s\n", networking);
   printf("-s %s\n", internal_storage);
 }
 
