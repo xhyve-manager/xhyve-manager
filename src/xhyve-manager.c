@@ -100,6 +100,7 @@ void form_config_string(char **ret, const char* fmt, ...)
 void start_machine(xhyve_virtual_machine_t *machine)
 {
   char *firmware = get_firmware_type(machine);
+  char *acpi = NULL;
   char *bridge = NULL;
   char *lpc = NULL;
   char *lpc_dev = NULL;
@@ -120,10 +121,11 @@ void start_machine(xhyve_virtual_machine_t *machine)
     form_config_string(&internal_storage, "ss", internal_storage, machine->s##_##n); \
   if (MATCH(#s, "external_storage") && !(MATCH(machine->external_storage_configinfo, "")) && !(MATCH(machine->s##_##n, ""))) \
     form_config_string(&external_storage, "ss", external_storage, machine->s##_##n); \
+  if (MATCH(#s, "acpi") && MATCH(machine->acpi_enabled, "true")) form_config_string(&acpi, "s", "-A");
 
 #include <xhyve-manager/config.def>
 
-  if (MATCH(machine->acpi_enabled, "true")) printf("-A\n");
+  printf("%s\n", acpi);
   printf("-U %s\n", machine->machine_uuid);
   printf("-m %s\n", machine->memory_size);
   printf("-c %s\n", machine->processor_cpus);
