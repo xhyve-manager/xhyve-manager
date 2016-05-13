@@ -83,9 +83,12 @@ void form_config_string(char **ret, const char* fmt, ...)
 
     if (*fmt == 's') {
       char *s = va_arg(args, char *);
-      asprintf(ret, "%s%s", *ret, s);
-      if (!(MATCH(*ret, "")) && *next != '\0') {
-        asprintf(ret, "%s,", *ret);
+
+      if (s) {
+        asprintf(ret, "%s%s", *ret, s);
+        if (*next != '\0') {
+          asprintf(ret, "%s,", *ret);
+        }
       }
     }
     ++fmt;
@@ -97,12 +100,12 @@ void form_config_string(char **ret, const char* fmt, ...)
 void start_machine(xhyve_virtual_machine_t *machine)
 {
   char *firmware = get_firmware_type(machine);
-  char *bridge = "";
-  char *lpc = "";
-  char *lpc_dev = "";
-  char *networking = "";
-  char *internal_storage = "";
-  char *external_storage = "";
+  char *bridge = NULL;
+  char *lpc = NULL;
+  char *lpc_dev = NULL;
+  char *networking = NULL;
+  char *internal_storage = NULL;
+  char *external_storage = NULL;
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
   if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) \
