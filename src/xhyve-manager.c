@@ -139,7 +139,13 @@ void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_n
 
 void edit_machine_config(xhyve_virtual_machine_t *machine)
 {
-  printf("This is where I'll edit the machine %s", machine->machine_name);
+  char *editor = NULL;
+
+  if ((editor = getenv("EDITOR")) == NULL) {
+    editor = "nano";
+  }
+
+  fprintf(stdout, "Editing %s config with external editor: %s", machine->machine_name, editor);
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
