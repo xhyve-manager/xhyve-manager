@@ -154,9 +154,9 @@ void start_machine(xhyve_virtual_machine_t *machine)
     NULL
   };
 
-  int argnum = 20;
+  int argnum = 19;
 
-  if (external_storage) exec_args[argnum++] = external_storage;
+  if (external_storage) exec_args[argnum++] = "-s", exec_args[argnum++] = external_storage;
   if (acpi) exec_args[argnum++] = acpi;
 
   int i;
@@ -165,9 +165,9 @@ void start_machine(xhyve_virtual_machine_t *machine)
   }
 
   char cwd[1024];
- chdir(get_machine_path(machine->machine_name));
- if (getcwd(cwd, sizeof(cwd)) != NULL)
-   fprintf(stdout, "Current working dir: %s\n", cwd);
+  chdir(get_machine_path(machine->machine_name));
+  if (getcwd(cwd, sizeof(cwd)) != NULL)
+    fprintf(stdout, "Current working dir: %s\n", cwd);
 
   xhyve_entrypoint(argnum, exec_args);
 }
