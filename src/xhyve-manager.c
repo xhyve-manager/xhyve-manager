@@ -99,9 +99,9 @@ void form_config_string(char **ret, const char* fmt, ...)
 
 void start_machine(xhyve_virtual_machine_t *machine)
 {
-  char *uuid = NULL;
-  char *memory = NULL;
-  char *cpus = NULL;
+  char *uuid = machine->machine_uuid;
+  char *memory = machine->memory_size;
+  char *cpus = machine->processor_cpus;
   char *firmware = get_firmware_type(machine);
   char *acpi = NULL;
   char *bridge = NULL;
@@ -127,33 +127,34 @@ void start_machine(xhyve_virtual_machine_t *machine)
   if (MATCH(#s, "acpi") && MATCH(machine->acpi_enabled, "true")) form_config_string(&acpi, "s", "-A");
 
 #include <xhyve-manager/config.def>
-  asprintf(&uuid, "-U %s", machine->machine_uuid);
-  asprintf(&memory, "-m %s", machine->memory_size);
-  asprintf(&cpus, "-c %s", machine->processor_cpus);
-  asprintf(&firmware, "-f %s", firmware);
-  asprintf(&bridge, "-s %s", bridge);
-  asprintf(&lpc, "-s %s", lpc);
-  asprintf(&lpc_dev, "-l %s", lpc_dev);
-  asprintf(&networking, "-s %s", networking);
-  asprintf(&internal_storage, "-s %s", internal_storage);
-  if (external_storage) asprintf(&external_storage, "-s %s", external_storage);
 
-  int argnum = 9;
   char *exec_args[] = {
     "xhyve",
+    "-f",
     firmware,
+    "-U",
     uuid,
+    "-m",
     memory,
+    "-c",
     cpus,
+    "-s",
     bridge,
-    lpc,
+    "-l",
     lpc_dev,
+    "-s",
+    lpc,
+    "-s",
     networking,
+    "-s",
     internal_storage,
+    "",
     "",
     "",
     NULL
   };
+
+  int argnum = 20;
 
   if (external_storage) exec_args[argnum++] = external_storage;
   if (acpi) exec_args[argnum++] = acpi;
