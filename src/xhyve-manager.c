@@ -258,9 +258,9 @@ void create_machine(xhyve_virtual_machine_t *machine)
   machine->machine_type = strdup(input);
 
   // Internal Storage
-  get_input(input, "Is there an existing virtual disk you would like to use?");
-  if (MATCH(input, "yes")) {
-    get_input(input, "Please type in the full path to the virtual disk:");
+  get_input(input, "Is there an existing virtual disk you would like to use? y/n");
+  if (MATCH(input, "y")) {
+    get_input(input, "Please type in the full path to the virtual disk: (ex. /Users/tris/VDisks/dauntless.img)");
   } else {
     get_input(input, "I can create a virtual disk for you! How much space should it use in GBs? (ex. 5 for 5GB)");
     // dd if=/dev/zero of=vdisk0.img bs=1g count=<user-input>
@@ -268,8 +268,15 @@ void create_machine(xhyve_virtual_machine_t *machine)
   machine->internal_storage_configinfo = strdup(input);
 
   // External Storage
-  get_input(input, "Is there an ISO you would like to mount? Type in the full path below");
-  machine->external_storage_configinfo = strdup(input);
+  get_input(input, "Is there an ISO, i.e. a CD image you would like to mount? y/n");
+  if (MATCH(input, "y")) {
+    get_input(input, "Please type in the full path to the ISO (ex. /Users/katniss/Downloads/ubuntu-16.10-your-mom.iso):");
+    machine->external_storage_configinfo = strdup(input);
+    if (MATCH(machine->machine_type, "linux")) {
+      fprintf(stdout, "Since this will be a linux machine, I will extract the kernel from the ISO\n");
+      // extract boot stuff automatically here
+    }
+  }
 
   fprintf(stdout, "Below will be the configuration:\n");
   print_machine_info(machine);
