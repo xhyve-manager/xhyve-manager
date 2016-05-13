@@ -31,7 +31,7 @@ Why? I need to practice my C-fu, dagnabbit.
 + [ ] ~delete <name>~ delete virtual machine
 + [ ] ~info <name>~ show info about the virtual machine
 + [X] ~start <name>~ start virtual machine.
-*** DONE Create a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
+*** DONE parse a ~$HOME/xhyve VMs/<name>.xhyvm~ directory. This is where we'll store everything but the storage options.
 CLOSED: [2016-05-13 Fri 14:47]
 **** Read ~config.ini~ that specify:
 + [X] memory size
@@ -43,5 +43,12 @@ CLOSED: [2016-05-13 Fri 14:47]
 **** Storage: specify with ~edit~
 + [X] CD: specify where this is on disk. Automatically extract the kernel and initrd (Put this in ~<name>.xhyvm~) or just have user specify it.
 + [X] HDD: specify where this is on disk; create if it doesn't exist or just have user specify it.
+*** TODO Create a new virtual machine.
+**** Collect these basic values: 
+***** ~machine_name~ eg. "Ubuntu 16.04"
+***** ~machine_type~ eg. "linux", "bsd"
+***** ~internal_storage_configoptions~ path to the vdisk (e.g. /Users/aj/VDisks/vdisk0.img)
+***** ~external_storage_configoptions~ path to the CD img (e.g. /Users/aj/xhyve VMs/Ubuntu.xhyvm/ubuntu.iso)
+***** ~boot_options~ specify what it should be. for BSD this should be empty. 
 *** DONE At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.
 CLOSED: [2016-05-13 Fri 14:47]

@@ -19,13 +19,14 @@ typedef struct xhyve_virtual_machine {
 void edit_machine_config(xhyve_virtual_machine_t *machine);
 void print_machine_info(xhyve_virtual_machine_t *machine);
 void start_machine(xhyve_virtual_machine_t *machine);
+void create_machine(xhyve_virtual_machine_t *machine);
 
 // Helpers
 char *get_machine_path(const char *machine_name);
 char *get_config_path(const char *machine_name);
 const char *get_homedir(void);
 void initialize_machine_config(xhyve_virtual_machine_t *machine);
-void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name);
+void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name, int newFile);
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param);
 int print_usage(void);
 void form_config_string(char **ret, const char* fmt, ...);

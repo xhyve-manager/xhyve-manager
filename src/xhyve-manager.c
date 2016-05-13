@@ -22,6 +22,7 @@
 // Constants
 #define DEFAULT_VM_DIR "xhyve VMs"
 #define DEFAULT_VM_EXT "xhyvm"
+#define NAME_MAX_CHARS 256
 
 // Macros
 #define MATCH(s, n) strcmp(s, n) == 0
@@ -189,10 +190,10 @@ void initialize_machine_config(xhyve_virtual_machine_t *machine)
 #include <xhyve-manager/config.def>
 }
 
-void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name)
+void load_machine_config(xhyve_virtual_machine_t *machine, const char *machine_name, int newFile)
 {
   initialize_machine_config(machine);
-  if (ini_parse(get_config_path(machine_name), handler, machine) < 0) {
+  if (ini_parse(get_config_path(machine_name), handler, machine) < 0 && !newFile) {
     fprintf(stderr, "Missing or invalid machine config at %s\n", get_config_path(machine_name));
     exit(EXIT_FAILURE);
   }
@@ -225,26 +226,26 @@ void edit_machine_config(xhyve_virtual_machine_t *machine)
   }
 }
 
+void create_machine(xhyve_virtual_machine_t *machine)
+{
+  char name[NAME_MAX_CHARS];
+  printf("Who are you? ");
+  fgets(name,NAME_MAX_CHARS,stdin);
+  printf("Glad to meet you, %s.\n",name);
+  if (machine) print_machine_info(machine);
+}
+
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
 {
-  if (command && param) {
-    machine = malloc(sizeof(xhyve_virtual_machine_t));
-    load_machine_config(machine, param);
+  if (MATCH(command, "create") && !param) create_machine(machine);
+  else if (param) {
+    machine = malloc(sizeof(machine));
+    initialize_machine_config(machine);
+    load_machine_config(machine, param, 0);
 
-    if (!strcmp(command, "info")) {
-      print_machine_info(machine);
-    } else if (!strcmp(command, "start")) {
-      if (getuid() != 0) {
-        fprintf(stderr, "%s start needs to be run as root\n", program_exec);
-        exit(EXIT_FAILURE);
-      } else {
-        start_machine(machine);
-      }
-    } else if (!strcmp(command, "edit")) {
-      edit_machine_config(machine);
-    }
-  } else {
-    print_usage();
+    if (MATCH(command, "edit")) edit_machine_config(machine);
+    if (MATCH(command, "info")) print_machine_info(machine);
+    if (MATCH(command, "start")) start_machine(machine);
   }
 }
 
@@ -278,7 +279,7 @@ const char *get_homedir(void)
 int main(int argc, char **argv)
 {
   program_exec = argv[0];
-  if (argc < 2) {
+  if (argc < 1) {
     print_usage();
   }
 
@@ -286,12 +287,8 @@ int main(int argc, char **argv)
   char *machine_name = argv[2];
   xhyve_virtual_machine_t *machine = NULL;
 
-  if (machine_name) {
-    parse_args(machine, command, machine_name);
-    exit(EXIT_SUCCESS);
-  } else {
-    print_usage();
-  }
+  parse_args(machine, command, machine_name);
+  exit(EXIT_SUCCESS);
 }
 
 
