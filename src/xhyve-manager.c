@@ -52,13 +52,15 @@ char *get_machine_path(const char *machine_name)
 
 int start_machine(xhyve_virtual_machine_t *machine)
 {
+  char *acpiflag = "";
   char *pci_dev = "";
   char *pci_lpc = "";
   char *lpc_dev = "";
   char *net = "";
-  char *img_cd = NULL; char *cdflag = NULL;
+  char *img_cd = "";
   char *img_hdd = "";
   char *firmware = "";
+  char *cdflag = NULL;
 
   chdir(get_machine_path(machine->machine_name));
   form_config_string(&pci_dev, "ss", machine->bridge_slot, machine->bridge_driver);
@@ -84,7 +86,8 @@ int start_machine(xhyve_virtual_machine_t *machine)
 
   if (strcmp(machine->machine_type, "linux") == 0) {
     form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
-  } else if (strcmp(machine->machine_type, "bsd") == 0){
+  } else if (strcmp(machine->machine_type, "bsd") == 0) {
+    acpiflag = "-A";
     form_config_string(&firmware, "ssss", "fbsd", "userboot.so", machine->boot_initrd, machine->boot_options);
   } else {
     fprintf(stderr, "Sorry, a %s OS is not supported. Did you mean 'linux' or 'bsd'?\n", machine->machine_type);
@@ -113,6 +116,7 @@ int start_machine(xhyve_virtual_machine_t *machine)
     img_hdd,
     cdflag,
     img_cd,
+    acpiflag,
     NULL
   };
 

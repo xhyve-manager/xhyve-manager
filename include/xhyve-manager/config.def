@@ -4,6 +4,8 @@ CFG(machine, name, "default")
 CFG(machine, type, "linux")
 CFG(machine, uuid, "UUID-STRING-HERE")
 
+CFG(acpi, enabled, "false")
+
 CFG(boot, kernel, "vmlinuz")
 CFG(boot, initrd, "initrd.gz")
 CFG(boot, options, "earlyprintk=serial console=ttyS0 acpi=off")
