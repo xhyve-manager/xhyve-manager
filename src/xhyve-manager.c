@@ -73,9 +73,14 @@ void start_machine(xhyve_virtual_machine_t *machine)
 {
   char *firmware = get_firmware_type(machine);
   char *bridge = "";
+  char *internal_storage = "";
 
 #define CFG(s, n, default) if (MATCH(#s, "boot")) form_config_string(&firmware, "ss", firmware, machine->s##_##n); \
-  if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) form_config_string(&bridge, "ss", bridge, machine->s##_##n);
+  if (MATCH(#s, "bridge") && !(MATCH(machine->s##_##n, ""))) \
+    form_config_string(&bridge, "ss", bridge, machine->s##_##n); \
+  if (MATCH(#s, "internal_storage") && !(MATCH(machine->s##_##n, ""))) \
+    form_config_string(&internal_storage, "ss", internal_storage, machine->s##_##n);       \
+
 #include <xhyve-manager/config.def>
 
   printf(" -f %s\n", firmware);
