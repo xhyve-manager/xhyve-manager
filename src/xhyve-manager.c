@@ -127,7 +127,6 @@ void start_machine(xhyve_virtual_machine_t *machine)
   if (MATCH(#s, "acpi") && MATCH(machine->acpi_enabled, "true")) form_config_string(&acpi, "s", "-A");
 
 #include <xhyve-manager/config.def>
-
   asprintf(&uuid, "-U %s", machine->machine_uuid);
   asprintf(&memory, "-m %s", machine->memory_size);
   asprintf(&cpus, "-c %s", machine->processor_cpus);
@@ -138,6 +137,38 @@ void start_machine(xhyve_virtual_machine_t *machine)
   asprintf(&networking, "-s %s", networking);
   asprintf(&internal_storage, "-s %s", internal_storage);
   if (external_storage) asprintf(&external_storage, "-s %s", external_storage);
+
+  int argnum = 9;
+  char *exec_args[] = {
+    "xhyve",
+    firmware,
+    uuid,
+    memory,
+    cpus,
+    bridge,
+    lpc,
+    lpc_dev,
+    networking,
+    internal_storage,
+    "",
+    "",
+    NULL
+  };
+
+  if (external_storage) exec_args[argnum++] = external_storage;
+  if (acpi) exec_args[argnum++] = acpi;
+
+  int i;
+  for (i = 0; i < argnum; i++){
+    printf("%s\n", exec_args[i]);
+  }
+
+  char cwd[1024];
+ chdir(get_machine_path(machine->machine_name));
+ if (getcwd(cwd, sizeof(cwd)) != NULL)
+   fprintf(stdout, "Current working dir: %s\n", cwd);
+
+  xhyve_entrypoint(argnum, exec_args);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
