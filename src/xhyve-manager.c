@@ -233,12 +233,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
     if (!strcmp(command, "info")) {
       print_machine_info(machine);
     } else if (!strcmp(command, "start")) {
-      pid_t pid;
-      if ((pid = fork()) == -1) {
-        perror("fork");
-      } else if (pid == 0) {
-        start_machine(machine);
-      }
+      start_machine(machine);
     } else if (!strcmp(command, "edit")) {
       edit_machine_config(machine);
     }
