@@ -249,7 +249,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
   while (!valid) {
     get_input(input, "Will this be a linux or bsd machine?");
 
-    if (strcmp(input, "linux") == 0 || strcmp(input, "bsd") == 0) {
+    if (MATCH(input, "linux") || MATCH(input, "bsd")) {
       valid = 1;
     } else {
       fprintf(stdout, "I'm sorry, '%s' is not a valid machine type.\n\n", input);
@@ -258,7 +258,13 @@ void create_machine(xhyve_virtual_machine_t *machine)
   machine->machine_type = strdup(input);
 
   // Internal Storage
-  get_input(input, "Type in the full path to the virtual disk");
+  get_input(input, "Is there an existing virtual disk you would like to use?");
+  if (MATCH(input, "yes")) {
+    get_input(input, "Please type in the full path to the virtual disk:");
+  } else {
+    get_input(input, "I can create a virtual disk for you! How much space should it use in GBs? (ex. 5 for 5GB)");
+    // dd if=/dev/zero of=vdisk0.img bs=1g count=<user-input>
+  }
   machine->internal_storage_configinfo = strdup(input);
 
   // External Storage
