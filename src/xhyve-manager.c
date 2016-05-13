@@ -169,7 +169,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   if (getcwd(cwd, sizeof(cwd)) != NULL)
     fprintf(stdout, "Current working dir: %s\n", cwd);
 
-  xhyve_entrypoint(argnum, exec_args);
+  execvp(*exec_args, exec_args);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
