@@ -26,6 +26,9 @@
 #define DEFAULT_VM_DIR "xhyve VMs"
 #define DEFAULT_VM_EXT "xhyvm"
 
+// Macros
+#define MATCH(s, n) strcmp(s, n) == 0
+
 // Local
 #include <xhyve-manager/xhyve-manager.h>
 #include <ini/ini.h>
@@ -53,8 +56,8 @@ char *get_machine_path(const char *machine_name)
 
 void start_machine(xhyve_virtual_machine_t *machine)
 {
-#define MATCH(s, n) strcmp(s, n) == 0
-#define CFG(s, n, default) if (MATCH(#s, "machine")) printf("%s", machine->s##_##n);
+#define CFG(s, n, default) if (MATCH(#s, "boot")) printf("boot: %s,", machine->s##_##n); \
+  if (MATCH(#s, "bridge")) printf("bridge: %s,", machine->s##_##n);
 #include <xhyve-manager/config.def>
 }
 

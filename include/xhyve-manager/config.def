@@ -28,6 +28,7 @@ CFG(external_storage, slot, "3")
 CFG(external_storage, driver, "ahci-cd")
 CFG(external_storage, configinfo, NULL)
 
+
 CFG(networking, slot, "2:0")
 CFG(networking, driver, "virtio-net")
 CFG(networking, configinfo, NULL)
