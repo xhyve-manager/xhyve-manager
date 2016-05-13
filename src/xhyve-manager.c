@@ -240,6 +240,8 @@ void create_machine(xhyve_virtual_machine_t *machine)
   int valid = 0;
   char input[BUFSIZ];
 
+  fprintf(stdout, "So you want to create an xhyve virtual machine. Maybe I can help!\n");
+
   // Basic Machine Info
   get_input(input, "What would you like to name this machine?");
   machine->machine_name = strdup(input);
@@ -250,7 +252,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
     if (strcmp(input, "linux") == 0 || strcmp(input, "bsd") == 0) {
       valid = 1;
     } else {
-      fprintf(stdout, "I'm sorry, %s is not a valid machine type.\n", input);
+      fprintf(stdout, "I'm sorry, '%s' is not a valid machine type.\n\n", input);
     }
   }
   machine->machine_type = strdup(input);
