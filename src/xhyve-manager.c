@@ -280,6 +280,9 @@ void create_machine(xhyve_virtual_machine_t *machine)
 
   fprintf(stdout, "Below will be the configuration:\n");
   print_machine_info(machine);
+
+  get_input(input, "Is there anything you would like to edit? y/n");
+  if (MATCH(input, "y")) edit_machine_config(machine);
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
