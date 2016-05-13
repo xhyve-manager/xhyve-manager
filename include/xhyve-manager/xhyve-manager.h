@@ -18,7 +18,7 @@ typedef struct xhyve_virtual_machine {
 
 void edit_machine_config(xhyve_virtual_machine_t *machine);
 void print_machine_info(xhyve_virtual_machine_t *machine);
-int start_machine(xhyve_virtual_machine_t *machine);
+void start_machine(xhyve_virtual_machine_t *machine);
 
 // Helpers
 char *get_machine_path(const char *machine_name);

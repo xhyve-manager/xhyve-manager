@@ -30,6 +30,7 @@
 #include <xhyve-manager/xhyve-manager.h>
 #include <ini/ini.h>
 
+
 static int handler(void* machine, const char* section, const char* name,
                    const char* value)
 {
@@ -50,87 +51,10 @@ char *get_machine_path(const char *machine_name)
   return machine_path;
 }
 
-int start_machine(xhyve_virtual_machine_t *machine)
+void start_machine(xhyve_virtual_machine_t *machine)
 {
-  char *acpiflag = "";
-  char *pci_dev = "";
-  char *pci_lpc = "";
-  char *lpc_dev = "";
-  char *net = "";
-  char *img_cd = "";
-  char *img_hdd = "";
-  char *firmware = "";
-  char *cdflag = NULL;
-
-  chdir(get_machine_path(machine->machine_name));
-  form_config_string(&pci_dev, "ss", machine->bridge_slot, machine->bridge_driver);
-  form_config_string(&pci_lpc, "ss", machine->lpc_slot, machine->lpc_driver);
-  form_config_string(&lpc_dev, "s", machine->lpc_configinfo);
-  form_config_string(&net, "ss", machine->networking_slot, machine->networking_driver);
-
-  if (strcmp(machine->external_storage_configinfo, "") != 0) {
-    form_config_string(&img_cd, "sss",
-                       machine->external_storage_slot,
-                       machine->external_storage_driver,
-                       machine->external_storage_configinfo);
-    cdflag = "-s";
-  }
-
-  form_config_string(&img_hdd, "sss",
-                     machine->internal_storage_slot,
-                     machine->internal_storage_driver,
-                     machine->internal_storage_configinfo);
-
-  if (chdir(get_machine_path(machine->machine_name)) < 0)
-    perror("chdir");
-
-  if (strcmp(machine->machine_type, "linux") == 0) {
-    acpiflag = NULL;
-    form_config_string(&firmware, "ssss", "kexec", machine->boot_kernel, machine->boot_initrd, machine->boot_options);
-  } else if (strcmp(machine->machine_type, "bsd") == 0) {
-    acpiflag = "-A";
-    form_config_string(&firmware, "ssss", "fbsd", "userboot.so", machine->boot_initrd, machine->boot_options);
-  } else {
-    fprintf(stderr, "Sorry, a %s OS is not supported. Did you mean 'linux' or 'bsd'?\n", machine->machine_type);
-    exit(EXIT_FAILURE);
-  }
-
-  char *args[] = {
-    "xhyve",
-    "-U",
-    machine->machine_uuid,
-    "-f",
-    firmware,
-    "-m",
-    machine->memory_size,
-    "-c",
-    machine->processor_cpus,
-    "-s",
-    pci_dev,
-    "-s",
-    pci_lpc,
-    "-l",
-    lpc_dev,
-    "-s",
-    net,
-    "-s",
-    img_hdd,
-    acpiflag,
-    cdflag,
-    img_cd,
-    NULL
-  };
-
-  int argnum = 0;
-  char **ptr = NULL;
-  ptr = args;
-
-  while (*ptr) {
-    ++argnum;
-    ++ptr;
-  }
-
-  return xhyve_entrypoint(argnum, args);
+#define CFG(s, n, default) if (strcmp(#s, "machine") == 0) printf("%s_%s = %s\n", #s, #n, machine->s##_##n);
+#include <xhyve-manager/config.def>
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
