@@ -56,11 +56,11 @@ char *get_machine_path(const char *machine_name)
 static char *get_firmware_type(xhyve_virtual_machine_t *machine)
 {
   char *firmware = NULL;
-  if (MATCH(machine->machine_type, "bsd"))
+  if (MATCH(machine->machine_type, "bsd")) {
     firmware = "fbsd";
-  else if (MATCH(machine->machine_type, "linux"))
+  } else if (MATCH(machine->machine_type, "linux")) {
     firmware = "kexec";
-  else {
+  } else {
     fprintf(stderr, "Supported machine types: linux, bsd\n");
     exit(EXIT_FAILURE);
   }
@@ -269,11 +269,16 @@ void create_machine(xhyve_virtual_machine_t *machine)
 
     if (MATCH(input, "linux") || MATCH(input, "bsd")) {
       valid = 1;
+      if (MATCH(input, "bsd")) {
+        machine->boot_options = "";
+        asprintf(&machine->boot_kernel, "%s/%s/%s", get_homedir(), DEFAULT_VM_DIR, "boot/userboot.so");
+      }
     } else {
       fprintf(stdout, "I'm sorry, '%s' is not a valid machine type.\n\n", input);
     }
   }
   machine->machine_type = strdup(input);
+
 
   // Generate UUID
   fprintf(stdout, "Generating a UUID\n");
@@ -302,6 +307,8 @@ void create_machine(xhyve_virtual_machine_t *machine)
     if (MATCH(machine->machine_type, "linux")) {
       fprintf(stdout, "Since this will be a linux machine, I will extract the kernel and initrd from the ISO\n");
       // TODO extract boot stuff automatically here
+    } else {
+      machine->boot_initrd = strdup(machine->external_storage_configinfo);
     }
   }
 
@@ -339,9 +346,8 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
       if (getuid() == 0) 
         start_machine(machine); 
       else
-        fprintf(stderr, "You need to be root to start a VM"); exit(EXIT_FAILURE);
+        fprintf(stderr, "You need to be Root to start a VM"); exit(EXIT_FAILURE);
     }
-
   } else {
     print_usage();
   }
