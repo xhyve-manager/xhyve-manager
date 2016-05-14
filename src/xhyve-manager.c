@@ -242,6 +242,7 @@ static void get_input(char input[], char *message)
 void create_virtual_disk(int size)
 {
   fprintf(stdout, "A %dGB disk will be made\n", size);
+  fprintf(stdout, "Disk at %s/%s", get_homedir(), DEFAULT_VDISKS_DIR);
 }
 
 void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
