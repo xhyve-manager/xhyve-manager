@@ -120,7 +120,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
     form_config_string(&networking, "ss", networking, machine->s##_##n); \
   if (MATCH(#s, "internal_storage") && !(MATCH(machine->s##_##n, "")))  \
     form_config_string(&internal_storage, "ss", internal_storage, machine->s##_##n); \
-  if (MATCH(#s, "external_storage") && !(MATCH(machine->external_storage_configinfo, "")) && !(MATCH(machine->s##_##n, ""))) \
+  if (MATCH(#s, "external_storage") && !(MATCH(machine->external_storage_configinfo, ""))) \
     form_config_string(&external_storage, "ss", external_storage, machine->s##_##n); \
   if (MATCH(#s, "acpi") && MATCH(machine->acpi_enabled, "true")) form_config_string(&acpi, "s", "-A");
 
@@ -154,7 +154,11 @@ void start_machine(xhyve_virtual_machine_t *machine)
 
   int argnum = 19;
 
-  if (external_storage) exec_args[argnum++] = "-s", exec_args[argnum++] = external_storage;
+  if (external_storage) {
+    exec_args[argnum++] = "-s";
+    exec_args[argnum++] = external_storage;
+  }
+
   if (acpi) exec_args[argnum++] = acpi;
 
   int i;
