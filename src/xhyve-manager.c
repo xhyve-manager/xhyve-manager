@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <assert.h>
+#include <errno.h>
 #include <uuid/uuid.h>
 
 // Constants
@@ -274,24 +275,28 @@ void extract_linux_boot_images(char *path)
   char *full_path;
   asprintf(&full_path, "if=%s", path);
 
-  pid_t creator;
-  pid_t copier;
+  pid_t creator, copier;
 
-  creator = fork();
-  copier = fork();
-
-  if (creator == 0) {
-    execlp("dd", "dd", "if=/dev/zero", "bs=2k", "count=1", "of=/tmp/tmp.iso", (const char *) NULL);
-  } else if (copier == 0) {
-    int fd = open("/tmp/tmp.iso", O_WRONLY | O_APPEND, 0666);
-    dup2(fd, 1);
-    close(fd);
-
-    execlp("dd", "dd", full_path, "bs=2k", "skip=1", "of=/tmp/tmp.iso", (const char *) NULL);
-  } else if (copier > 0 && creator > 1) {
+  if ((copier = fork()) == 0) {
+    if ((creator = fork()) == 0) {
+      execl("/bin/dd","dd","if=/dev/zero","bs=2k","count=1","of=/tmp/tmp.iso", (char *)0);
+    } else {
+      wait(NULL);
+      int file = open("/tmp/tmp.iso",
+                      O_CREAT | O_RDWR | O_APPEND,
+                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH );
+      if (file < 0)
+        {
+          fprintf(stderr, "open error: %d [%s]\n", errno, strerror(errno));
+          exit(1);
+        }
+      dup2(file,1);
+      close(file);
+      execl("/bin/dd","dd",full_path,"bs=2k","skip=1",(char *)0);
+    }
+  } else {
     wait(NULL);
   }
-
 }
 
 void create_machine(xhyve_virtual_machine_t *machine)
@@ -423,6 +428,7 @@ const char *get_homedir(void)
 
 int main(int argc, char **argv)
 {
+  extract_linux_boot_images("/Users/aj/Desktop/CentOS-7-x86_64-Minimal-1511.iso");
   program_exec = argv[0];
   if (argc < 1) {
     print_usage();
