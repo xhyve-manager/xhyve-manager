@@ -58,3 +58,10 @@ CLOSED: [2016-05-13 Fri 14:47]
 ***** ~boot_options~ specify what it should be. for BSD this should be empty. 
 *** DONE At last, start the VM and hope for the best. And also login. And start a VNC server, probably, if we want something graphical.
 CLOSED: [2016-05-13 Fri 14:47]
+* Location of boot images
+** Linux Live USBs 
+ + *Arch Linux* ~/arch/boot/x86_64/{archiso.img,vmlinuz}~
+ + *CentOS* ~/isolinux/{initrd.img,vmlinuz}~
+ + *Ubuntu* ~/install/{initrd.gz,vmlinuz}~
+ + *Debian* ~/install.amd/{initrd.gz,vmlinuz/~
+
