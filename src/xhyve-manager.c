@@ -253,7 +253,7 @@ void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
     exit(EXIT_FAILURE);
   }
 
-#define CFG(s, n, default) fprintf(config_file, "%s=%s\n", #n, machine->s##_##n);
+#define CFG(s, n, default) fprintf(config_file, "%s=%s\n", #s, machine->s##_##n);
 #include <xhyve-manager/config.def>
 
   fclose(config_file);
