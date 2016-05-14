@@ -240,10 +240,17 @@ static void get_input(char input[], char *message)
   fprintf(stdout, "\n\n");
 }
 
-void create_virtual_disk(int size)
+char* get_vdisk_path(char *vdisk_name)
+{
+  char *vdisk_path = NULL;
+  asprintf(&vdisk_path, "%s/%s/%s.img", get_homedir(), DEFAULT_VDISKS_DIR, vdisk_name);
+  return vdisk_path;
+}
+
+void create_virtual_disk(char *path, int size)
 {
   fprintf(stdout, "A %dGB disk will be made\n", size);
-  fprintf(stdout, "Disk at %s/%s", get_homedir(), DEFAULT_VDISKS_DIR);
+  fprintf(stdout, "Disk at %s", path);
 }
 
 void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
@@ -259,6 +266,24 @@ void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
 
   fclose(config_file);
   fprintf(stdout, "Created %s for %s\n", config_path, machine->machine_name);
+}
+
+void extract_linux_boot_images(char *path)
+{
+  pid_t child;
+  if ((child = fork()) == -1) {
+    perror("fork");
+  } else {
+    if (child > 0) {
+      int status;
+      waitpid(child, &status, 0);
+      if (WIFEXITED(status)) {
+        fprintf(stdout, "\nExtract for %s\n", path);
+      }
+    } else {
+      execlp("dd", "dd", "if=/dev/zero", "bs=2k", "count=1", "of=/tmp/tmp.iso", (const char *) NULL);
+    }
+  }
 }
 
 void create_machine(xhyve_virtual_machine_t *machine)
@@ -293,20 +318,22 @@ void create_machine(xhyve_virtual_machine_t *machine)
   fprintf(stdout, "Generating a UUID\n");
   uuid_t uuid;
   uuid_generate(uuid);
-  uuid_string_t out;
-  uuid_unparse(uuid, out);
-  machine->machine_uuid = strdup(out);
+  uuid_string_t uuid_str;
+  uuid_unparse(uuid, uuid_str);
+  machine->machine_uuid = strdup(uuid_str);
   fprintf(stdout, "The UUID of the machine will be %s\n", machine->machine_uuid);
 
   // Internal Storage
   get_input(input, "Is there an existing virtual disk you would like to use? y/n");
   if (MATCH(input, "y")) {
     get_input(input, "Please type in the full path to the virtual disk: (ex. /Users/tris/VDisks/dauntless.img)");
+    machine->internal_storage_configinfo = strdup(input);
   } else {
     get_input(input, "I can create a virtual disk for you! How much space should it use in GBs? (ex. 5 for 5GB)");
-    create_virtual_disk(atoi(input));
+    char *vdisk_path = get_vdisk_path(uuid_str);
+    create_virtual_disk(vdisk_path, atoi(input));
+    machine->internal_storage_configinfo = strdup(uuid_str);
   }
-  machine->internal_storage_configinfo = strdup(input);
 
   // External Storage
   get_input(input, "Is there an ISO, i.e. a CD image you would like to mount? y/n");
@@ -315,7 +342,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
     machine->external_storage_configinfo = strdup(input);
     if (MATCH(machine->machine_type, "linux")) {
       fprintf(stdout, "Since this will be a linux machine, I will extract the kernel and initrd from the ISO\n");
-      // TODO extract boot stuff automatically here
+      extract_linux_boot_images(input);
     } else {
       machine->boot_initrd = strdup(machine->external_storage_configinfo);
     }
