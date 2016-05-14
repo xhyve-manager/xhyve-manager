@@ -20,7 +20,7 @@
 #include <uuid/uuid.h>
 
 // Constants
-#define DEFAULT_VM_DIR "xhyve VMs"
+#define DEFAULT_VM_DIR ".xhyve.d/machines"
 #define DEFAULT_VM_EXT "xhyvm"
 
 // Macros
@@ -352,7 +352,6 @@ int print_usage(void)
 }
 
 // <slot,driver,configinfo> PCI slot config
-
 
 const char *get_homedir(void)
 {
