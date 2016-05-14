@@ -244,21 +244,20 @@ void create_virtual_disk(int size)
   fprintf(stdout, "A %dGB disk will be made\n", size);
 }
 
-/* void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path) */
-/* { */
-/*   FILE *config_file; */
-/*   char *line = NULL; */
+void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
+{
+  FILE *config_file;
 
-/*   if ((config_file=fopen(config_path, "w"))==NULL) { */
-/*     fprintf(stderr, "iniparser: cannot create example.ini\n"); */
-/*     exit(EXIT_FAILURE); */
-/*   } */
+  if ((config_file=fopen(config_path, "w"))==NULL) {
+    fprintf(stderr, "iniparser: cannot create example.ini\n");
+    exit(EXIT_FAILURE);
+  }
 
-/* #define CFG(s, n, default) ; */
-/* #include <xhyve-manager/config.def> */
+#define CFG(s, n, default) fprintf(config_file, "%s=%s\n", #s, machine->s##_##n);
+#include <xhyve-manager/config.def>
 
-/*   fclose(config_file); */
-/* } */
+  fclose(config_file);
+}
 
 void create_machine(xhyve_virtual_machine_t *machine)
 {
@@ -318,7 +317,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
   char *config_path = get_config_path(machine->machine_name);
   fprintf(stdout, "Created config at %s", config_path);
   // TODO
-  //write_machine_config(machine, config_path);
+  write_machine_config(machine, config_path);
 
   
 }
