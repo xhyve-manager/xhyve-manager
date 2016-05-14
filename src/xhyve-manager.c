@@ -248,15 +248,17 @@ void create_virtual_disk(int size)
 
 void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
 {
-  fprintf(stdout, "This is where I'd write the config at %s for %s. If i knew How.\n", config_path, machine->machine_name);
 
-  //FILE *config_file = fopen(config_path, "w");
+  FILE *config_file = fopen(config_path, "w");
 
   char *section = "";
 
-#define CFG(s, n, default) if (!(MATCH(section, #s))) { section = #s; printf("[%s]\n", section); } \
-  if (MATCH(section, #s)) { printf("%s = %s\n", #n, machine->s##_##n); }
+#define CFG(s, n, default) if (!(MATCH(section, #s))) { section = #s; fprintf(config_file, "\n[%s]\n", section); } \
+  if (MATCH(section, #s)) { fprintf(config_file, "%s = %s\n", #n, machine->s##_##n); }
 #include <xhyve-manager/config.def>
+
+  fclose(config_file);
+  fprintf(stdout, "Created %s for %s\n", config_path, machine->machine_name);
 }
 
 void create_machine(xhyve_virtual_machine_t *machine)
@@ -320,12 +322,10 @@ void create_machine(xhyve_virtual_machine_t *machine)
   }
 
   // TODO tmp files, dumbass
-  // TODO if (mkdir(get_machine_path(machine->machine_name), 0755) == -1) perror("mkdir");
+  if (mkdir(get_machine_path(machine->machine_name), 0755) == -1) perror("mkdir");
   char *config_path = get_config_path(machine->machine_name);
   // TODO
   write_machine_config(machine, config_path);
-
-  
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
@@ -333,7 +333,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
   if (command && !param) {
     machine = malloc(sizeof(machine));
     initialize_machine_config(machine);
-    if (MATCH(command, "create")) write_machine_config(machine, get_config_path(machine->machine_name));
+    if (MATCH(command, "create")) create_machine(machine);
     else print_usage();
   } else if (command && param) {
 
