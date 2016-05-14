@@ -222,6 +222,7 @@ void edit_machine_config(xhyve_virtual_machine_t *machine)
       waitpid(child, &status, 0);
       if (WIFEXITED(status)) {
         fprintf(stdout, "\nEdited configuration for %s machine\n", machine->machine_name);
+        load_machine_config(machine, machine->machine_name, 0); // reload machine info
         print_machine_info(machine);
       }
     } else {
