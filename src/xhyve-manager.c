@@ -15,6 +15,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <pwd.h>
 #include <assert.h>
 #include <uuid/uuid.h>
@@ -270,20 +271,27 @@ void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
 
 void extract_linux_boot_images(char *path)
 {
-  pid_t child;
-  if ((child = fork()) == -1) {
-    perror("fork");
-  } else {
-    if (child > 0) {
-      int status;
-      waitpid(child, &status, 0);
-      if (WIFEXITED(status)) {
-        fprintf(stdout, "\nExtract for %s\n", path);
-      }
-    } else {
-      execlp("dd", "dd", "if=/dev/zero", "bs=2k", "count=1", "of=/tmp/tmp.iso", (const char *) NULL);
-    }
+  char *full_path;
+  asprintf(&full_path, "if=%s", path);
+
+  pid_t creator;
+  pid_t copier;
+
+  creator = fork();
+  copier = fork();
+
+  if (creator == 0) {
+    execlp("dd", "dd", "if=/dev/zero", "bs=2k", "count=1", "of=/tmp/tmp.iso", (const char *) NULL);
+  } else if (copier == 0) {
+    int fd = open("/tmp/tmp.iso", O_WRONLY | O_APPEND, 0666);
+    dup2(fd, 1);
+    close(fd);
+
+    execlp("dd", "dd", full_path, "bs=2k", "skip=1", "of=/tmp/tmp.iso", (const char *) NULL);
+  } else if (copier > 0 && creator > 1) {
+    wait(NULL);
   }
+
 }
 
 void create_machine(xhyve_virtual_machine_t *machine)
