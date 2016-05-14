@@ -20,6 +20,7 @@
 #include <uuid/uuid.h>
 
 // Constants
+#define DEFAULT_VDISKS_DIR "VDisks"
 #define DEFAULT_VM_DIR ".xhyve.d/machines"
 #define DEFAULT_VM_EXT "xhyvm"
 
