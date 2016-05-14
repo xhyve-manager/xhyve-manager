@@ -329,14 +329,18 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
       load_machine_config(machine, param, 0);
     }
 
-    if (MATCH(command, "create")) print_usage();
-
-    if (MATCH(command, "edit")) edit_machine_config(machine);
-
-    if (MATCH(command, "info")) print_machine_info(machine);
-
-    if (MATCH(command, "start") && getuid() == 0) start_machine(machine);
-    else fprintf(stderr, "You need to be root to start a VM"); exit(EXIT_FAILURE);
+    if (MATCH(command, "create"))
+      print_usage();
+    else if (MATCH(command, "edit"))
+      edit_machine_config(machine);
+    else if (MATCH(command, "info"))
+      print_machine_info(machine);
+    else if (MATCH(command, "start")) {
+      if (getuid() == 0) 
+        start_machine(machine); 
+      else
+        fprintf(stderr, "You need to be root to start a VM"); exit(EXIT_FAILURE);
+    }
 
   } else {
     print_usage();
