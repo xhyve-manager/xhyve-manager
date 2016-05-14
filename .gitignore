@@ -2,3 +2,4 @@
 .obj
 .DS_Store
 build
+cscope.*
