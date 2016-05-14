@@ -69,10 +69,10 @@ static char *get_firmware_type(xhyve_virtual_machine_t *machine)
 
 void form_config_string(char **ret, const char *fmt, ...)
 {
-  join_string(ret, ',', fmt);
+  join_string(ret, ",", fmt);
 }
 
-void join_string(char **ret, const char delim, const char *fmt, ...)
+void join_string(char **ret, const char *delim, const char *fmt, ...)
 {
   // From http://en.cppreference.com/w/c/variadic
   va_list args;
@@ -90,7 +90,7 @@ void join_string(char **ret, const char delim, const char *fmt, ...)
       if (s) {
         asprintf(ret, "%s%s", *ret, s);
         if (*next != '\0') {
-          asprintf(ret, "%s%c", *ret, delim);
+          asprintf(ret, "%s%s", *ret, delim);
         }
       }
     }
