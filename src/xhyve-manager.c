@@ -334,7 +334,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
   if (command && !param) {
     machine = malloc(sizeof(machine));
     initialize_machine_config(machine);
-    if (MATCH(command, "create")) create_machine(machine);
+    if (MATCH(command, "create")) write_machine_config(machine, get_config_path(machine->machine_name));
     else print_usage();
   } else if (command && param) {
 
