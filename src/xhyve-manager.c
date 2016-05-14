@@ -67,12 +67,7 @@ static char *get_firmware_type(xhyve_virtual_machine_t *machine)
   return firmware;
 }
 
-void form_config_string(char **ret, const char *fmt, ...)
-{
-  join_string(ret, ',', fmt);
-}
-
-void join_string(char **ret, const char delim, const char *fmt, ...)
+void form_config_string(char **ret, const char* fmt, ...)
 {
   // From http://en.cppreference.com/w/c/variadic
   va_list args;
@@ -90,7 +85,7 @@ void join_string(char **ret, const char delim, const char *fmt, ...)
       if (s) {
         asprintf(ret, "%s%s", *ret, s);
         if (*next != '\0') {
-          asprintf(ret, "%s%c", *ret, delim);
+          asprintf(ret, "%s,", *ret);
         }
       }
     }
@@ -244,21 +239,12 @@ void create_virtual_disk(int size)
   fprintf(stdout, "A %dGB disk will be made\n", size);
 }
 
-/* void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path) */
-/* { */
-/*   FILE *config_file; */
-/*   char *line = NULL; */
-
-/*   if ((config_file=fopen(config_path, "w"))==NULL) { */
-/*     fprintf(stderr, "iniparser: cannot create example.ini\n"); */
-/*     exit(EXIT_FAILURE); */
-/*   } */
-
-/* #define CFG(s, n, default) ; */
-/* #include <xhyve-manager/config.def> */
-
-/*   fclose(config_file); */
-/* } */
+void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
+{
+  fprintf(stdout, "This is where I'd write the config at %s. If i knew How.\n", config_path);
+  fprintf(stdout, "Below be the generated configuration, matey:\n");
+  print_machine_info(machine);
+}
 
 void create_machine(xhyve_virtual_machine_t *machine)
 {
@@ -316,9 +302,8 @@ void create_machine(xhyve_virtual_machine_t *machine)
   // TODO tmp files, dumbass
   if (mkdir(get_machine_path(machine->machine_name), 0755) == -1) perror("mkdir");
   char *config_path = get_config_path(machine->machine_name);
-  fprintf(stdout, "Created config at %s", config_path);
   // TODO
-  //write_machine_config(machine, config_path);
+  write_machine_config(machine, config_path);
 
   
 }
