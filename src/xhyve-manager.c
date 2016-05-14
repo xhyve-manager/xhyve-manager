@@ -253,10 +253,9 @@ void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
   //FILE *config_file = fopen(config_path, "w");
 
   char *section = "";
-  int header = 1;
 
-#define CFG(s, n, default) if (header && !(MATCH(section, #s))) section = #s; printf("[%s]\n", section); header = 0; \
-  if (!header && MATCH(section, #s)) printf("%s=%s\n", #n, machine->s##_##n);
+#define CFG(s, n, default) if (!(MATCH(section, #s))) section = #s; printf("[%s]\n", section); \
+  if (MATCH(section, #s)) printf("%s=%s\n", #n, machine->s##_##n);
 #include <xhyve-manager/config.def>
 }
 
