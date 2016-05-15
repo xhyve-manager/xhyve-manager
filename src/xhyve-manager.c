@@ -282,7 +282,7 @@ void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
   fprintf(stdout, "Created %s for %s\n", config_path, machine->machine_name);
 }
 
-void extract_linux_boot_images(char *path)
+void extract_linux_boot_images(const char *path)
 {
   char *full_path;
   asprintf(&full_path, "if=%s", path);
@@ -392,7 +392,14 @@ void create_machine(xhyve_virtual_machine_t *machine)
 
   char *config_path = get_config_path(machine->machine_name);
   write_machine_config(machine, config_path);
+
+  fprintf(stdout, "Below is the configuration.\n");
   print_machine_info(machine);
+  get_input(input, "Would you like to edit?");
+  if (MATCH(input, "y"))
+    edit_machine_config(machine);
+  else
+    fprintf(stdout, "Now you can try starting the VM with `%s start %s`", program_exec, machine->machine_name);
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
@@ -403,8 +410,10 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
     if (MATCH(command, "create")) create_machine(machine);
     else print_usage();
   } else if (command && param) {
+    if (MATCH(command, "extract"))
+      extract_linux_boot_images(param);
 
-    if (!(MATCH(command, "create"))) {
+    if (!(MATCH(command, "create")) && !(MATCH(command, "extract"))) {
       machine = malloc(sizeof(machine));
       initialize_machine_config(machine);
       load_machine_config(machine, param, 0);
@@ -434,6 +443,8 @@ int print_usage(void)
   fprintf(stderr, "\t  info: show info about VM\n");
   fprintf(stderr, "\t  start: start VM (needs root)\n");
   fprintf(stderr, "\t  edit: edit the configuration for VM\n");
+  fprintf(stderr, "\t  create: create a VM\n");
+  fprintf(stderr, "\t  extract: extract the needed boot images for Linux vms\n");
   exit(EXIT_FAILURE);
 }
 
