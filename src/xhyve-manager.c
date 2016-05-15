@@ -49,6 +49,12 @@ static int handler(void* machine, const char* section, const char* name,
   return 1;
 }
 
+void cleanup(void *ptr)
+{
+  if (ptr != NULL)
+    free(ptr);
+}
+
 char *get_machine_path(const char *machine_name)
 {
   char *machine_path = NULL;
@@ -253,10 +259,10 @@ char* get_vdisk_path(char *vdisk_name)
 void create_virtual_disk(char *path, int size)
 {
   fprintf(stdout, "A %dGB disk will be made\n", size);
-  char *ofpath;
-  asprintf(&ofpath, "of=%s", path);
-  char *countstr;
-  asprintf(&countstr, "count=%d", size);
+  char ofpath[BUFSIZ];
+  sprintf(ofpath, "of=%s", path);
+  char countstr[BUFSIZ];
+  sprintf(countstr, "count=%d", size);
 
   pid_t child;
   if ((child = fork()) == 0) {
@@ -284,8 +290,8 @@ void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
 
 void extract_linux_boot_images(const char *path)
 {
-  char *full_path;
-  asprintf(&full_path, "if=%s", path);
+  char full_path[BUFSIZ];
+  sprintf(full_path, "if=%s", path);
 
   pid_t creator, copier;
 
@@ -435,7 +441,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
     print_usage();
   }
 
-  if (machine) free(machine);
+  cleanup(machine);
 }
 
 int print_usage(void)
