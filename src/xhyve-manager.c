@@ -270,7 +270,10 @@ void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
   fprintf(stdout, "Created %s for %s\n", config_path, machine->machine_name);
 }
 
-void extract_linux_boot_images(char *path)
+/**
+ * For now, delegate to OS X sysutils
+ **/
+void read_linux_image(char *path)
 {
   char *full_path;
   asprintf(&full_path, "if=%s", path);
@@ -296,6 +299,28 @@ void extract_linux_boot_images(char *path)
     }
   } else {
     wait(NULL);
+  }
+}
+
+void mount_linux_image(char *path)
+{
+  pid_t reader;
+  if ((reader = fork()) == 0) {
+    read_linux_image(path);
+  } else {
+    wait(NULL);
+    execl("/usr/bin/hdiutil", "hdiutil", "attach", "/tmp/tmp.iso");
+  }
+}
+
+void extract_linux_boot_images(char *path)
+{
+  pid_t mounter;
+  if ((mounter = fork()) == 0) { 
+    mount_linux_image(path);
+  } else {
+    wait(NULL);
+    fprintf(stdout, "There, it's mounted, nerd.");
   }
 }
 
@@ -428,7 +453,7 @@ const char *get_homedir(void)
 
 int main(int argc, char **argv)
 {
-  extract_linux_boot_images("/Users/aj/Desktop/CentOS-7-x86_64-Minimal-1511.iso");
+  extract_linux_boot_images("/Users/aj/Downloads/openSUSE-Leap-42.1-NET-x86_64.iso");
   program_exec = argv[0];
   if (argc < 1) {
     print_usage();
