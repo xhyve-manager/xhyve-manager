@@ -296,6 +296,9 @@ void extract_linux_boot_images(char *path)
     }
   } else {
     wait(NULL);
+    fprintf(stdout, "Now, you need to mount /tmp/tmp.iso by running `open /tmp/tmp.iso`");
+    fprintf(stdout, "This will mount the Linux live ISO into a disk your computer can read.");
+
   }
 }
 
@@ -428,7 +431,6 @@ const char *get_homedir(void)
 
 int main(int argc, char **argv)
 {
-  extract_linux_boot_images("/Users/aj/Desktop/CentOS-7-x86_64-Minimal-1511.iso");
   program_exec = argv[0];
   if (argc < 1) {
     print_usage();
