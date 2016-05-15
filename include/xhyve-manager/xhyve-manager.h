@@ -22,8 +22,6 @@ void start_machine(xhyve_virtual_machine_t *machine);
 void create_machine(xhyve_virtual_machine_t *machine);
 
 // Helpers
-void mount_linux_image(char *path);
-void read_linux_image(char *path);
 void extract_linux_boot_images(char *path);
 char* get_vdisk_path(char *vdisk_name);
 void create_virtual_disk(char *path, int size);
