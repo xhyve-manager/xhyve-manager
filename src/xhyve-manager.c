@@ -311,18 +311,29 @@ void create_machine(xhyve_virtual_machine_t *machine)
   fprintf(stdout, "So you want to create an xhyve virtual machine. Maybe I can help!\n");
 
   // Basic Machine Info
-  get_input(input, "What would you like to name this machine?");
-  machine->machine_name = strdup(input);
+  while (!valid) {
+    get_input(input, "What would you like to name this machine?");
+
+    if (mkdir(get_machine_path(input), 0755) == -1) {
+      fprintf(stderr, "Sorry, %s already exists", input);
+    } else {
+      machine->machine_name = strdup(input);
+      valid = 1;
+      break;
+    }
+  }
+  
 
   while (!valid) {
     get_input(input, "Will this be a linux or bsd machine?");
 
     if (MATCH(input, "linux") || MATCH(input, "bsd")) {
-      valid = 1;
       if (MATCH(input, "bsd")) {
         machine->boot_options = "";
         asprintf(&machine->boot_kernel, "%s/%s/%s", get_homedir(), DEFAULT_VM_DIR, "boot/userboot.so");
       }
+      valid = 1;
+      break;
     } else {
       fprintf(stdout, "I'm sorry, '%s' is not a valid machine type.\n\n", input);
     }
@@ -340,34 +351,31 @@ void create_machine(xhyve_virtual_machine_t *machine)
   fprintf(stdout, "The UUID of the machine will be %s\n", machine->machine_uuid);
 
   // Internal Storage
-  get_input(input, "Is there an existing virtual disk you would like to use? y/n");
-  if (MATCH(input, "y")) {
-    get_input(input, "Please type in the full path to the virtual disk: (ex. /Users/tris/VDisks/dauntless.img)");
-    machine->internal_storage_configinfo = strdup(input);
-  } else {
-    get_input(input, "I can create a virtual disk for you! How much space should it use in GBs? (ex. 5 for 5GB)");
-    char *vdisk_path = get_vdisk_path(uuid_str);
-    create_virtual_disk(vdisk_path, atoi(input));
-    machine->internal_storage_configinfo = strdup(uuid_str);
+  valid = 0;
+  while (!valid) {
+    get_input(input, "Is there an existing virtual disk you would like to use? y/n");
+    if (MATCH(input, "y")) {
+      get_input(input, "Please type in the full path to the virtual disk: (ex. /Users/tris/VDisks/dauntless.img)");
+      machine->internal_storage_configinfo = strdup(input);
+      valid = 1;
+    } else {
+      get_input(input, "I can create a virtual disk for you! How much space should it use in GBs? (ex. 5 for 5GB)");
+      char *vdisk_path = get_vdisk_path(uuid_str);
+      create_virtual_disk(vdisk_path, atoi(input));
+      machine->internal_storage_configinfo = strdup(uuid_str);
+      valid = 1;
+      break;
+    }
   }
 
   // External Storage
   get_input(input, "Is there an ISO, i.e. a CD image you would like to mount? y/n");
   if (MATCH(input, "y")) {
-    get_input(input, "Please type in the full path to the ISO (ex. /Users/katniss/Downloads/ubuntu-16.10-your-mom.iso):");
+    get_input(input, "What is the path to the CD image? (Type in the FULL absolute path.)");
     machine->external_storage_configinfo = strdup(input);
-    if (MATCH(machine->machine_type, "linux")) {
-      fprintf(stdout, "Since this will be a linux machine, I will extract the kernel and initrd from the ISO\n");
-      extract_linux_boot_images(input);
-    } else {
-      machine->boot_initrd = strdup(machine->external_storage_configinfo);
-    }
   }
 
-  // TODO tmp files, dumbass
-  if (mkdir(get_machine_path(machine->machine_name), 0755) == -1) perror("mkdir");
   char *config_path = get_config_path(machine->machine_name);
-  // TODO
   write_machine_config(machine, config_path);
 }
 
