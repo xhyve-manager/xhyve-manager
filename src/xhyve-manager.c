@@ -434,6 +434,8 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
   } else {
     print_usage();
   }
+
+  if (machine) free(machine);
 }
 
 int print_usage(void)
