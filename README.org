@@ -3,7 +3,9 @@
 https://asciinema.org/a/45565
 
 #+BEGIN_HTML
-<a href="https://asciinema.org/a/45565" target="_blank"><img src="https://asciinema.org/a/45565.png" /></a>
+<a href="https://asciinema.org/a/epd4ajqwi6pfcx7z6u5kqnhmx" target="_blank">
+  <img src="https://asciinema.org/a/epd4ajqwi6pfcx7z6u5kqnhmx.png" width="698"/>
+</a>
 #+END_HTML
 
 Is this superfluous? Probably.
