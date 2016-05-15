@@ -49,6 +49,36 @@ static int handler(void* machine, const char* section, const char* name,
   return 1;
 }
 
+void setup_host_machine(void)
+{
+  if (getuid() != 0) {
+    fprintf(stderr, "This commands need to be run as Root\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // Setup host NFS
+  fprintf(stdout, "Setting up NFS on host machine with base IP 192.168.64.xx\n");
+  FILE *exports = fopen("/etc/exports", "a");
+  fprintf(exports, "# BEGIN XHYVE\n");
+  fprintf(exports, "/Users -mapall=501 -network 192.168.64.0 -mask 255.255.255.0\n");
+  fprintf(exports, "# END XHYVE\n");
+  fclose(exports);
+
+  // Restart NFS daemon
+  pid_t child;
+  if ((child = fork()) == -1) {
+    perror("fork");
+  } else {
+    if (!child) {
+      fprintf(stdout, "Restarting nfsd to reload the NFS configuration\n");
+      execlp("nfsd", "nfsd", "restart", (const char *) NULL);
+    } else {
+      wait(NULL);
+      fprintf(stdout, "Done\n");
+    }
+  }
+}
+
 void cleanup(void *ptr)
 {
   if (ptr != NULL)
@@ -416,6 +446,7 @@ void parse_args(xhyve_virtual_machine_t *machine, const char *command, const cha
     machine = malloc(sizeof(machine));
     initialize_machine_config(machine);
     if (MATCH(command, "create")) create_machine(machine);
+    else if (MATCH(command, "setup")) setup_host_machine();
     else print_usage();
   } else if (command && param) {
     if (MATCH(command, "extract"))

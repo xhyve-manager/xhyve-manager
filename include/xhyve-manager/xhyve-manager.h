@@ -16,6 +16,7 @@ typedef struct xhyve_virtual_machine {
   #include <xhyve-manager/config.def> 
 } xhyve_virtual_machine_t;
 
+void setup_host_machine(void);
 void edit_machine_config(xhyve_virtual_machine_t *machine);
 void print_machine_info(xhyve_virtual_machine_t *machine);
 void start_machine(xhyve_virtual_machine_t *machine);
