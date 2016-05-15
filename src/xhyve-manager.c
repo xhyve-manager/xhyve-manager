@@ -314,9 +314,12 @@ void extract_linux_boot_images(const char *path)
     }
   } else {
     wait(NULL);
-    fprintf(stdout, "Now, you need to mount /tmp/tmp.iso by running `open /tmp/tmp.iso`");
-    fprintf(stdout, "This will mount the Linux live ISO into a disk your computer can read.");
-
+    fprintf(stdout, "Now, you need to mount /tmp/tmp.iso by running `open /tmp/tmp.iso`\n");
+    fprintf(stdout, "This will mount the Linux live ISO into a disk your computer can read.\n");
+    fprintf(stdout, "Example:\n");
+    fprintf(stdout, "\t$ xhyve-manager extract ~/Downloads/archlinux-2016.05.01-dual.iso\n");
+    fprintf(stdout, "\t$ open /tmp/tmp.iso\n");
+    fprintf(stdout, "\t$ cp /Volumes/ARCH_201605/boot/x86_64/{vmlinuz,archiso.img} ~/.xhyve.d/machines/Arch.xhyvm\n");
   }
 }
 
@@ -340,7 +343,6 @@ void create_machine(xhyve_virtual_machine_t *machine)
       break;
     }
   }
-  
 
   while (!valid) {
     get_input(input, "Will this be a linux or bsd machine?");
