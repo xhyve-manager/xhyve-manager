@@ -486,10 +486,9 @@ int print_usage(void)
   fprintf(stderr, "\t  edit: edit the configuration for VM\n");
   fprintf(stderr, "\t  create: create a VM\n");
   fprintf(stderr, "\t  extract: extract the needed boot images for Linux vms\n");
+  fprintf(stderr, "\t  setup: setup host machine for NFS\n");
   exit(EXIT_FAILURE);
 }
-
-// <slot,driver,configinfo> PCI slot config
 
 const char *get_homedir(void)
 {
