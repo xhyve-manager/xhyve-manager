@@ -25,6 +25,7 @@
 #define DEFAULT_VDISKS_DIR "VDisks"
 #define DEFAULT_VM_DIR ".xhyve.d/machines"
 #define DEFAULT_VM_EXT "xhyvm"
+#define DEFAULT_SHARED ".xhyve.d/shared/firmware"
 
 // Macros
 #define MATCH(s, n) strcmp(s, n) == 0
@@ -252,7 +253,18 @@ char* get_vdisk_path(char *vdisk_name)
 void create_virtual_disk(char *path, int size)
 {
   fprintf(stdout, "A %dGB disk will be made\n", size);
-  fprintf(stdout, "Disk at %s", path);
+  char *ofpath;
+  asprintf(&ofpath, "of=%s", path);
+  char *countstr;
+  asprintf(&countstr, "count=%d", size);
+
+  pid_t child;
+  if ((child = fork()) == 0) {
+    execl("/bin/dd","dd","if=/dev/zero","bs=1g",countstr,ofpath, (char *)0);
+  } else {
+    wait(NULL);
+    fprintf(stdout, "Disk created at %s\n", path);
+  }
 }
 
 void write_machine_config(xhyve_virtual_machine_t *machine, char *config_path)
@@ -330,15 +342,18 @@ void create_machine(xhyve_virtual_machine_t *machine)
     if (MATCH(input, "linux") || MATCH(input, "bsd")) {
       if (MATCH(input, "bsd")) {
         machine->boot_options = "";
-        asprintf(&machine->boot_kernel, "%s/%s/%s", get_homedir(), DEFAULT_VM_DIR, "boot/userboot.so");
+        machine->boot_initrd = "";
+        asprintf(&machine->boot_kernel, "%s/%s/%s", get_homedir(), DEFAULT_SHARED, "userboot.so");
+      } else {
+        asprintf(&machine->boot_kernel, "%s/%s/%s", get_homedir(), DEFAULT_SHARED, "vmlinuz");
+        asprintf(&machine->boot_initrd, "%s/%s/%s", get_homedir(), DEFAULT_SHARED, "initrd.gz");
       }
+      machine->machine_type = strdup(input);
       valid = 1;
-      break;
     } else {
       fprintf(stdout, "I'm sorry, '%s' is not a valid machine type.\n\n", input);
     }
   }
-  machine->machine_type = strdup(input);
 
 
   // Generate UUID
@@ -362,7 +377,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
       get_input(input, "I can create a virtual disk for you! How much space should it use in GBs? (ex. 5 for 5GB)");
       char *vdisk_path = get_vdisk_path(uuid_str);
       create_virtual_disk(vdisk_path, atoi(input));
-      machine->internal_storage_configinfo = strdup(uuid_str);
+      machine->internal_storage_configinfo = strdup(vdisk_path);
       valid = 1;
       break;
     }
@@ -377,6 +392,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
 
   char *config_path = get_config_path(machine->machine_name);
   write_machine_config(machine, config_path);
+  print_machine_info(machine);
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
