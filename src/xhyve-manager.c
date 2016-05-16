@@ -22,7 +22,7 @@
 #include <uuid/uuid.h>
 
 // Constants
-#define DEFAULT_VDISKS_DIR "VDisks"
+#define DEFAULT_VDISKS_DIR ".xhyve.d/vdisks"
 #define DEFAULT_VM_DIR ".xhyve.d/machines"
 #define DEFAULT_VM_EXT "xhyvm"
 #define DEFAULT_SHARED ".xhyve.d/shared/firmware"
@@ -55,6 +55,8 @@ void setup_host_machine(void)
     fprintf(stderr, "This commands need to be run as Root\n");
     exit(EXIT_FAILURE);
   }
+  char path[BUFSIZ];
+  sprintf(path, "%s/%s", get_homedir(), DEFAULT_VM_DIR);
 
   // Setup host NFS
   fprintf(stdout, "Setting up NFS on host machine with base IP 192.168.64.xx\n");
@@ -366,7 +368,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
     get_input(input, "What would you like to name this machine?");
 
     if (mkdir(get_machine_path(input), 0755) == -1) {
-      fprintf(stderr, "Sorry, %s already exists", input);
+      fprintf(stderr, "%s\n", strerror(errno));
     } else {
       machine->machine_name = strdup(input);
       valid = 1;
