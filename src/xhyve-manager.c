@@ -395,6 +395,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
       machine->boot_initrd = "";
       asprintf(&machine->boot_kernel, "%s/%s", DEFAULT_SHARED, "userboot.so");
       machine->machine_type = strdup("bsd");
+      machine->acpi_enabled = strdup("true");
     }
     valid = 1;
   }
