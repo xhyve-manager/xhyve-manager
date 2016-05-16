@@ -22,10 +22,10 @@
 #include <uuid/uuid.h>
 
 // Constants
-#define DEFAULT_VDISKS_DIR ".xhyve.d/vdisks"
-#define DEFAULT_VM_DIR ".xhyve.d/machines"
+#define DEFAULT_VDISKS_DIR "VDisks"
+#define DEFAULT_VM_DIR "Xhyve Virtual Machines"
 #define DEFAULT_VM_EXT "xhyvm"
-#define DEFAULT_SHARED ".xhyve.d/shared/firmware"
+#define DEFAULT_SHARED "/usr/local/share/xhyve-manager"
 
 // Macros
 #define MATCH(s, n) strcmp(s, n) == 0
@@ -366,9 +366,14 @@ void create_machine(xhyve_virtual_machine_t *machine)
   // Basic Machine Info
   while (!valid) {
     get_input(input, "What would you like to name this machine?");
+    char vm_dir_path[BUFSIZ];
+    sprintf(vm_dir_path, "%s/%s", get_homedir(), DEFAULT_VM_DIR);
+
+    if (mkdir(vm_dir_path, 0755) == -1)
+      fprintf(stderr, "%s\n", strerror(errno));
 
     if (mkdir(get_machine_path(input), 0755) == -1) {
-      fprintf(stderr, "%s\n", strerror(errno));
+        fprintf(stderr, "%s\n", strerror(errno));
     } else {
       machine->machine_name = strdup(input);
       valid = 1;
@@ -376,23 +381,22 @@ void create_machine(xhyve_virtual_machine_t *machine)
     }
   }
 
-  while (!valid) {
-    get_input(input, "Will this be a linux or bsd machine?");
+  valid = 0;
 
-    if (MATCH(input, "linux") || MATCH(input, "bsd")) {
-      if (MATCH(input, "bsd")) {
-        machine->boot_options = "";
-        machine->boot_initrd = "";
-        asprintf(&machine->boot_kernel, "%s/%s/%s", get_homedir(), DEFAULT_SHARED, "userboot.so");
-      } else {
-        asprintf(&machine->boot_kernel, "%s/%s/%s", get_homedir(), DEFAULT_SHARED, "vmlinuz");
-        asprintf(&machine->boot_initrd, "%s/%s/%s", get_homedir(), DEFAULT_SHARED, "initrd.gz");
-      }
-      machine->machine_type = strdup(input);
-      valid = 1;
+  while (!valid) {
+    get_input(input, "Will this be a linux or bsd machine? linux [bsd]");
+
+    if (MATCH(input, "linux")) {
+      asprintf(&machine->boot_kernel, "%s/%s", DEFAULT_SHARED, "vmlinuz");
+      asprintf(&machine->boot_initrd, "%s/%s", DEFAULT_SHARED, "initrd.gz");
+      machine->machine_type = "linux";
     } else {
-      fprintf(stdout, "I'm sorry, '%s' is not a valid machine type.\n\n", input);
+      machine->boot_options = "";
+      machine->boot_initrd = "";
+      asprintf(&machine->boot_kernel, "%s/%s", DEFAULT_SHARED, "userboot.so");
+      machine->machine_type = strdup("bsd");
     }
+    valid = 1;
   }
 
 
@@ -408,7 +412,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
   // Internal Storage
   valid = 0;
   while (!valid) {
-    get_input(input, "Is there an existing virtual disk you would like to use? y/n");
+    get_input(input, "Is there an existing virtual disk you would like to use? y/[n]");
     if (MATCH(input, "y")) {
       get_input(input, "Please type in the full path to the virtual disk: (ex. /Users/tris/VDisks/dauntless.img)");
       machine->internal_storage_configinfo = strdup(input);
@@ -424,10 +428,12 @@ void create_machine(xhyve_virtual_machine_t *machine)
   }
 
   // External Storage
-  get_input(input, "Is there an ISO, i.e. a CD image you would like to mount? y/n");
-  if (MATCH(input, "y")) {
+  get_input(input, "Is there an ISO, i.e. a CD image you would like to mount? [y]/n");
+  if (!(MATCH(input, "n"))) {
     get_input(input, "What is the path to the CD image? (Type in the FULL absolute path.)");
     machine->external_storage_configinfo = strdup(input);
+    if (MATCH(machine->machine_type, "bsd"))
+      machine->boot_initrd = strdup(machine->external_storage_configinfo);
   }
 
   char *config_path = get_config_path(machine->machine_name);
@@ -435,7 +441,7 @@ void create_machine(xhyve_virtual_machine_t *machine)
 
   fprintf(stdout, "Below is the configuration.\n");
   print_machine_info(machine);
-  get_input(input, "Would you like to edit?");
+  get_input(input, "Would you like to edit? y/[n]");
   if (MATCH(input, "y"))
     edit_machine_config(machine);
   else

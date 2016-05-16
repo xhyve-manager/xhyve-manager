@@ -33,6 +33,7 @@ prefix = /usr/local
 binprefix =
 bindir = $(prefix)/bin
 builddir = $(CURDIR)/build
+shareddir = share/$(TARGET)
 
 all: $(XHYVEMANAGER_EXEC) | build
 
@@ -60,12 +61,14 @@ $(XHYVEMANAGER_EXEC): $(XHYVEMANAGER_EXEC).sym
 	$(VERBOSE) $(ENV) $(STRIP) $(XHYVEMANAGER_EXEC).sym -o $@
 
 .PHONY: install
-install: all
+install: $(XHYVEMANAGER_EXEC) 
 	$(INSTALL) -C $(XHYVEMANAGER_EXEC) $(bindir)/$(binprefix)/$(TARGET)
+	cp -R $(shareddir) $(prefix)/share/$(TARGET)
 
 .PHONY: uninstall
 uninstall:
 	rm $(bindir)/$(binprefix)/$(TARGET)
+	rm -r $(prefix)/share/$(TARGET)
 
 clean:
 	rm -rf build
