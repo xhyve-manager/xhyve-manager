@@ -31,6 +31,7 @@
 #define MATCH(s, n) strcmp(s, n) == 0
 
 // Local
+#include <xhyve/xhyve.h>
 #include <xhyve-manager/xhyve-manager.h>
 #include <ini/ini.h>
 
@@ -213,7 +214,7 @@ void start_machine(xhyve_virtual_machine_t *machine)
   if (getcwd(cwd, sizeof(cwd)) != NULL)
     fprintf(stdout, "Current working dir: %s\n", cwd);
 
-  execvp(*exec_args, exec_args);
+  run_xhyve(argnum, exec_args);
 }
 
 void print_machine_info(xhyve_virtual_machine_t *machine)
