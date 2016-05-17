@@ -264,6 +264,7 @@ void edit_machine_config(xhyve_virtual_machine_t *machine)
       int status;
       waitpid(child, &status, 0);
       if (WIFEXITED(status)) {
+        fflush(stdout);
         fprintf(stdout, "\nEdited configuration for %s machine\n", machine->machine_name);
         load_machine_config(machine, machine->machine_name, 0); // reload machine info
         print_machine_info(machine);
@@ -462,6 +463,8 @@ void create_machine(xhyve_virtual_machine_t *machine)
     edit_machine_config(machine);
   else
     fprintf(stdout, "Now you can try starting the VM with `%s start %s`", program_exec, machine->machine_name);
+
+  fflush(stdout);
 }
 
 void parse_args(xhyve_virtual_machine_t *machine, const char *command, const char *param)
