@@ -367,12 +367,6 @@ void create_machine(xhyve_virtual_machine_t *machine)
   // Basic Machine Info
   while (!valid) {
     get_input(input, "What would you like to name this machine?");
-    char vm_dir_path[BUFSIZ];
-    sprintf(vm_dir_path, "%s/%s", get_homedir(), DEFAULT_VM_DIR);
-
-    if (mkdir(vm_dir_path, 0755) == -1)
-      fprintf(stderr, "%s\n", strerror(errno));
-
     if (mkdir(get_machine_path(input), 0755) == -1) {
         fprintf(stderr, "%s\n", strerror(errno));
     } else {
