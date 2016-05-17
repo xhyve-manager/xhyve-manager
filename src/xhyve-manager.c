@@ -63,7 +63,7 @@ void setup_host_machine(void)
   fprintf(stdout, "Setting up NFS on host machine with base IP 192.168.64.xx\n");
   FILE *exports = fopen("/etc/exports", "a");
   fprintf(exports, "# BEGIN XHYVE\n");
-  fprintf(exports, "/Users -mapall=501 -network 192.168.64.0 -mask 255.255.255.0\n");
+  fprintf(exports, "/Users -mapall=501 -network 192.168.64.0 -alldirs -mask 255.255.255.0");
   fprintf(exports, "# END XHYVE\n");
   fclose(exports);
 
