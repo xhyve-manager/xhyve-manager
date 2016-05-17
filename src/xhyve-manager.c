@@ -22,6 +22,7 @@
 #include <uuid/uuid.h>
 
 // Constants
+#define DEFAULT_NUM_STARTERS 1
 #define DEFAULT_VDISKS_DIR "VDisks"
 #define DEFAULT_VM_DIR "Xhyve Virtual Machines"
 #define DEFAULT_VM_EXT "xhyvm"
@@ -376,25 +377,44 @@ void create_machine(xhyve_virtual_machine_t *machine)
     }
   }
 
-  valid = 0;
+  // For pre-built starters
+  get_input(input, "Do you want to use a starter kit? [y]/n");
+  if (!(MATCH(input, "n"))) {
+    char **starter = { 0 };
+    starter = calloc(DEFAULT_NUM_STARTERS, 0);
+    int i = 0;
+    fprintf(stdout, "Valid starter kits:\n");
+#define SK(n, v) i++; \
+    fprintf(stdout, "%d %s %s\n", i, #n, #v); \
+    asprintf(&starter[i], "%s/%s", #n, #v);
+#include <xhyve-manager/starter_kits.def>
+    get_input(input, "Type in a number corresponding to the starter kit (e.g. 1 for ubuntu)");
 
-  while (!valid) {
-    get_input(input, "Will this be a linux or bsd machine? linux [bsd]");
+    int idx = atoi(input);
+    asprintf(&machine->boot_kernel, "%s/%s/%s", DEFAULT_SHARED, starter[idx], "vmlinuz");
+    asprintf(&machine->boot_initrd, "%s/%s/%s", DEFAULT_SHARED, starter[idx], "initrd.gz");
+    machine->machine_type = "linux";
+  } else {
+    valid = 0;
+    while (!valid) {
+      fprintf(stdout, "Will this be a linux or bsd machine?");
+      get_input(input, "linux [bsd]");
 
-    if (MATCH(input, "linux")) {
-      asprintf(&machine->boot_kernel, "%s/%s", DEFAULT_SHARED, "vmlinuz");
-      asprintf(&machine->boot_initrd, "%s/%s", DEFAULT_SHARED, "initrd.gz");
-      machine->machine_type = "linux";
-    } else {
-      machine->boot_options = "";
-      machine->boot_initrd = "";
-      asprintf(&machine->boot_kernel, "%s/%s", DEFAULT_SHARED, "userboot.so");
-      machine->machine_type = strdup("bsd");
-      machine->acpi_enabled = strdup("true");
+      if (MATCH(input, "linux")) {
+        asprintf(&machine->boot_kernel, "%s/%s", DEFAULT_SHARED, "vmlinuz");
+        asprintf(&machine->boot_initrd, "%s/%s", DEFAULT_SHARED, "initrd.gz");
+        machine->machine_type = "linux";
+      } else {
+        machine->boot_options = "";
+        machine->boot_initrd = "";
+        asprintf(&machine->boot_kernel, "%s/%s", DEFAULT_SHARED, "userboot.so");
+        machine->machine_type = strdup("bsd");
+        machine->acpi_enabled = strdup("true");
+      }
+      valid = 1;
     }
-    valid = 1;
-  }
 
+  }
 
   // Generate UUID
   fprintf(stdout, "Generating a UUID\n");

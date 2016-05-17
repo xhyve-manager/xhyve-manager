@@ -1,0 +1,6 @@
+// SK(n, v)
+
+SK(ubuntu, 16.04)
+
+#undef SK
+
