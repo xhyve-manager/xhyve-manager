@@ -53,29 +53,13 @@ static int handler(void* machine, const char* section, const char* name,
 
 void setup_host_machine(void)
 {
-  if (getuid() != 0) {
-    fprintf(stderr, "This commands need to be run as Root\n");
-    exit(EXIT_FAILURE);
-  }
-  char path[BUFSIZ];
-  sprintf(path, "%s/%s", get_homedir(), DEFAULT_VM_DIR);
-
-  // Setup host NFS
-  fprintf(stdout, "Setting up NFS on host machine with base IP 192.168.64.xx\n");
-  FILE *exports = fopen("/etc/exports", "a");
-  fprintf(exports, "# BEGIN XHYVE\n");
-  fprintf(exports, "/Users -mapall=501 -network 192.168.64.0 -alldirs -mask 255.255.255.0\n");
-  fprintf(exports, "# END XHYVE\n");
-  fclose(exports);
-
-  // Restart NFS daemon
   pid_t child;
   if ((child = fork()) == -1) {
     perror("fork");
   } else {
-    if (!child) {
-      fprintf(stdout, "Restarting nfsd to reload the NFS configuration\n");
-      execlp("nfsd", "nfsd", "restart", (const char *) NULL);
+    if (child == 0) {
+      fprintf(stdout, "Running setup script\n");
+      execlp("/usr/local/share/xhyve-manager/setup.sh", "setup.sh", (const char *) NULL);
     } else {
       wait(NULL);
       fprintf(stdout, "Done\n");
@@ -513,9 +497,10 @@ int print_usage(void)
   fprintf(stderr, "\t  edit: edit the configuration for VM\n");
   fprintf(stderr, "\t  create: create a VM\n");
   fprintf(stderr, "\t  extract: extract the needed boot images for Linux vms\n");
-  fprintf(stderr, "\t  setup: setup host machine for NFS\n");
+  fprintf(stderr, "\t  setup: setup host machine NFS and directories\n");
   exit(EXIT_FAILURE);
 }
+
 
 const char *get_homedir(void)
 {
